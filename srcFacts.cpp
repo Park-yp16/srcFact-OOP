@@ -16,9 +16,7 @@
 #include <locale>
 #include <iterator>
 #include <string>
-#include <algorithm>
 #include <sys/types.h>
-#include <errno.h>
 #include <string_view>
 #include <optional>
 #include <iomanip>
@@ -30,59 +28,17 @@
 #include <bitset>
 #include <cassert>
 
-#if !defined(_MSC_VER)
-#include <sys/uio.h>
-#include <unistd.h>
-#define READ read
-#else
-#include <BaseTsd.h>
-#include <io.h>
-typedef SSIZE_T ssize_t;
-#define READ _read
-#endif
+#include "refillContent.hpp"
 
 // provides literal string operator""sv
 using namespace std::literals::string_view_literals;
 
 const int BLOCK_SIZE = 4096;
-const int BUFFER_SIZE = 16 * 16 * BLOCK_SIZE;
 
 const std::bitset<128> xmlNameMask("00000111111111111111111111111110100001111111111111111111111111100000001111111111011000000000000000000000000000000000000000000000");
 
 constexpr auto WHITESPACE = " \n\t\r"sv;
 constexpr auto NAMEEND = "> /\":=\n\t\r"sv;
-
-/*
-    Refill the content preserving the existing data.
-
-    @param[in, out] content View of the content
-    @return Number of bytes read
-    @retval 0 EOF
-    @retval -1 Read error
-*/
-[[nodiscard]] int refillContent(std::string_view& content) {
-
-    // initialize the internal buffer at first use
-    static char buffer[BUFFER_SIZE];
-
-    // preserve prefix of unprocessed characters to start of the buffer
-    std::copy(content.cbegin(), content.cend(), buffer);
-
-    // read in multiple of whole blocks
-    ssize_t bytesRead = 0;
-    while (((bytesRead = READ(0, (buffer + content.size()),
-        BUFFER_SIZE - BLOCK_SIZE)) == -1) && (errno == EINTR)) {
-    }
-    if (bytesRead == -1) {
-        // error in read
-        return -1;
-    }
-
-    // set content to the start of the buffer
-    content = std::string_view(buffer, content.size() + bytesRead);
-
-    return bytesRead;
-}
 
 // trace parsing
 #ifdef TRACE
