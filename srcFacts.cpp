@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
         content.remove_prefix(content.find_first_not_of(WHITESPACE));
         content.remove_prefix("="sv.size());
         content.remove_prefix(content.find_first_not_of(WHITESPACE));
-        const char delimiter = content[0];
+        const auto delimiter = content[0];
         if (delimiter != '"' && delimiter != '\'') {
             std::cerr << "parser error: Invalid start delimiter for version in XML declaration\n";
             return 1;
@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
             assert(content.compare(0, "="sv.size(), "="sv) == 0);
             content.remove_prefix("="sv.size());
             content.remove_prefix(content.find_first_not_of(WHITESPACE));
-            char delimiter2 = content[0];
+            auto delimiter2 = content[0];
             if (delimiter2 != '"' && delimiter2 != '\'') {
                 std::cerr << "parser error: Invalid end delimiter for attribute " << attr2 << " in XML declaration\n";
                 return 1;
@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
             content.remove_prefix(content.find_first_not_of(WHITESPACE));
             content.remove_prefix("="sv.size());
             content.remove_prefix(content.find_first_not_of(WHITESPACE));
-            const char delimiter2 = content[0];
+            const auto delimiter2 = content[0];
             if (delimiter2 != '"' && delimiter2 != '\'') {
                 std::cerr << "parser error: Invalid end delimiter for attribute " << attr2 << " in XML declaration\n";
                 return 1;
@@ -480,7 +480,7 @@ int main(int argc, char* argv[]) {
                         std::cerr << "parser error : incomplete namespace\n";
                         return 1;
                     }
-                    const char delimiter = content[0];
+                    const auto delimiter = content[0];
                     if (delimiter != '"' && delimiter != '\'') {
                         std::cerr << "parser error : incomplete namespace\n";
                         return 1;
@@ -526,7 +526,7 @@ int main(int argc, char* argv[]) {
                     }
                     content.remove_prefix("="sv.size());
                     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-                    const char delimiter = content[0];
+                    const auto delimiter = content[0];
                     if (delimiter != '"' && delimiter != '\'') {
                         std::cerr << "parser error : attribute " << qName << " missing delimiter\n";
                         return 1;
