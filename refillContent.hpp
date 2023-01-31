@@ -1,5 +1,7 @@
 /*
     refillContent.hpp
+
+    Include file for refillContent functions
 */
 
 #ifndef INCLUDED_REFILLCONTENT_HPP

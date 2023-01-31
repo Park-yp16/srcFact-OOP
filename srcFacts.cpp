@@ -1,5 +1,6 @@
 /*
     srcFacts.cpp
+
     Produces a report with various measures of source code.
     Supports C++, C, Java, and C#. Input is an XML file in the srcML format,
     and output is a markdown table with the measures. Performance statistics
@@ -614,6 +615,7 @@ int main(int argc, char* argv[]) {
     std::cout.imbue(std::locale{""});
     int valueWidth = std::max(5, static_cast<int>(log10(totalBytes) * 1.3 + 1));
     
+    // output Report 
     std::cout << "# srcFacts: " << url << '\n';
     std::cout << "| Measure      | " << std::setw(valueWidth + 3) << "Value |\n";
     std::cout << "|:-------------|-" << std::setw(valueWidth + 3) << std::setfill('-') << ":|\n" << std::setfill(' ');

@@ -1,5 +1,7 @@
 /*
     refillContent.cpp
+    
+    Implementation file for refillContent functions
 */
 
 #include "refillContent.hpp"
