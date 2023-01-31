@@ -1,11 +1,9 @@
 /*
     srcFacts.cpp
-
     Produces a report with various measures of source code.
     Supports C++, C, Java, and C#. Input is an XML file in the srcML format,
     and output is a markdown table with the measures. Performance statistics
     are output to standard error.
-
     The code includes a complete XML parser:
     * Characters and content from XML is in UTF-8
     * DTD declarations are allowed, but not fine-grained parsed
@@ -70,6 +68,7 @@ int main(int argc, char* argv[]) {
     int returnCount = 0;
     long totalBytes = 0;
     std::string_view content;
+
     TRACE("START DOCUMENT");
     int bytesRead = refillContent(content);
     if (bytesRead < 0) {
@@ -82,11 +81,14 @@ int main(int argc, char* argv[]) {
     }
     totalBytes += bytesRead;
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
+    
     if (content[0] == '<' && content[1] == '?' && content[2] == 'x' && content[3] == 'm' && content[4] == 'l' && content[5] == ' ') {
+        
         // parse XML declaration
         assert(content.compare(0, "<?xml "sv.size(), "<?xml "sv) == 0);
         content.remove_prefix("<?xml"sv.size());
         content.remove_prefix(content.find_first_not_of(WHITESPACE));
+        
         // parse required version
         std::size_t nameEndPosition = content.find_first_of("= ");
         const std::string_view attr(content.substr(0, nameEndPosition));
@@ -113,6 +115,7 @@ int main(int argc, char* argv[]) {
         content.remove_prefix(valueEndPosition);
         content.remove_prefix("\""sv.size());
         content.remove_prefix(content.find_first_not_of(WHITESPACE));
+        
         // parse optional encoding and standalone attributes
         std::optional<std::string_view> encoding;
         std::optional<std::string_view> standalone;
@@ -182,12 +185,15 @@ int main(int argc, char* argv[]) {
             content.remove_prefix(valueEndPosition + 1);
             content.remove_prefix(content.find_first_not_of(WHITESPACE));
         }
+        
         TRACE("XML DECLARATION", "version", version, "encoding", (encoding ? *encoding : ""), "standalone", (standalone ? *standalone : ""));
         assert(content.compare(0, "?>"sv.size(), "?>"sv) == 0);
         content.remove_prefix("?>"sv.size());
         content.remove_prefix(content.find_first_not_of(WHITESPACE));
     }
+    
     if (content[1] == '!' && content[0] == '<' && content[2] == 'D' && content[3] == 'O' && content[4] == 'C' && content[5] == 'T' && content[6] == 'Y' && content[7] == 'P' && content[8] == 'E' && content[9] == ' ') {
+        
         // parse DOCTYPE
         assert(content.compare(0, "<!DOCTYPE "sv.size(), "<!DOCTYPE "sv) == 0);
         content.remove_prefix("<!DOCTYPE"sv.size());
@@ -230,6 +236,7 @@ int main(int argc, char* argv[]) {
         content.remove_prefix(">"sv.size());
         content.remove_prefix(content.find_first_not_of(WHITESPACE));
     }
+
     int depth = 0;
     bool doneReading = false;
     while (true) {
@@ -237,6 +244,7 @@ int main(int argc, char* argv[]) {
             if (content.empty())
                 break;
         } else if (content.size() < BLOCK_SIZE) {
+            
             // refill content preserving unprocessed
             int bytesRead = refillContent(content);
             if (bytesRead < 0) {
@@ -248,7 +256,9 @@ int main(int argc, char* argv[]) {
             }
             totalBytes += bytesRead;
         }
+
         if (content[0] == '&') {
+            
             // parse character entity references
             std::string_view unescapedCharacter;
             std::string_view escapedCharacter;
@@ -270,7 +280,9 @@ int main(int argc, char* argv[]) {
             [[maybe_unused]] const std::string_view characters(unescapedCharacter);
             TRACE("CHARACTERS", "characters", characters);
             ++textSize;
+        
         } else if (content[0] != '<') {
+            
             // parse character non-entity references
             assert(content[0] != '<' && content[0] != '&');
             std::size_t characterEndPosition = content.find_first_of("<&");
@@ -279,12 +291,15 @@ int main(int argc, char* argv[]) {
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
             textSize += static_cast<int>(characters.size());
             content.remove_prefix(characters.size());
+        
         } else if (content[1] == '!' /* && content[0] == '<' */ && content[2] == '-' && content[3] == '-') {
+            
             // parse XML comment
             assert(content.compare(0, "<!--"sv.size(), "<!--"sv) == 0);
             content.remove_prefix("<!--"sv.size());
             std::size_t tagEndPosition = content.find("-->"sv);
             if (tagEndPosition == content.npos) {
+                
                 // refill content preserving unprocessed
                 int bytesRead = refillContent(content);
                 if (bytesRead < 0) {
@@ -305,12 +320,15 @@ int main(int argc, char* argv[]) {
             TRACE("COMMENT", "content", comment);
             content.remove_prefix(tagEndPosition);
             content.remove_prefix("-->"sv.size());
+        
         } else if (content[1] == '!' /* && content[0] == '<' */ && content[2] == '[' && content[3] == 'C' && content[4] == 'D' &&
                    content[5] == 'A' && content[6] == 'T' && content[7] == 'A' && content[8] == '[') {
+            
             // parse CDATA
             content.remove_prefix("<![CDATA["sv.size());
             std::size_t tagEndPosition = content.find("]]>"sv);
             if (tagEndPosition == content.npos) {
+                
                 // refill content preserving unprocessed
                 int bytesRead = refillContent(content);
                 if (bytesRead < 0) {
@@ -333,7 +351,9 @@ int main(int argc, char* argv[]) {
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
             content.remove_prefix(tagEndPosition);
             content.remove_prefix("]]>"sv.size());
+        
         } else if (content[1] == '?' /* && content[0] == '<' */) {
+            
             // parse processing instruction
             assert(content.compare(0, "<?"sv.size(), "<?"sv) == 0);
             content.remove_prefix("<?"sv.size());
@@ -353,7 +373,9 @@ int main(int argc, char* argv[]) {
             content.remove_prefix(tagEndPosition);
             assert(content.compare(0, "?>"sv.size(), "?>"sv) == 0);
             content.remove_prefix("?>"sv.size());
+        
         } else if (content[1] == '/' /* && content[0] == '<' */) {
+            
             // parse end tag
             assert(content.compare(0, "</"sv.size(), "</"sv) == 0);
             content.remove_prefix("</"sv.size());
@@ -386,7 +408,9 @@ int main(int argc, char* argv[]) {
             --depth;
             if (depth == 0)
                 break;
+        
         } else if (content[0] == '<') {
+            
             // parse start tag
             assert(content.compare(0, "<"sv.size(), "<"sv) == 0);
             content.remove_prefix("<"sv.size());
@@ -432,6 +456,7 @@ int main(int argc, char* argv[]) {
             content.remove_prefix(content.find_first_not_of(WHITESPACE));
             while (xmlNameMask[content[0]]) {
                 if (content[0] == 'x' && content[1] == 'm' && content[2] == 'l' && content[3] == 'n' && content[4] == 's' && (content[5] == ':' || content[5] == '=')) {
+                    
                     // parse XML namespace
                     assert(content.compare(0, "xmlns"sv.size(), "xmlns"sv) == 0);
                     content.remove_prefix("xmlns"sv.size());
@@ -471,7 +496,9 @@ int main(int argc, char* argv[]) {
                     assert(content.compare(0, "\""sv.size(), "\""sv) == 0);
                     content.remove_prefix("\""sv.size());
                     content.remove_prefix(content.find_first_not_of(WHITESPACE));
+                
                 } else {
+                    
                     // parse attribute
                     std::size_t nameEndPosition = content.find_first_of(NAMEEND);
                     if (nameEndPosition == content.size()) {
@@ -513,11 +540,13 @@ int main(int argc, char* argv[]) {
                     if (localName == "url"sv)
                         url = value;
                     TRACE("ATTRIBUTE", "qname", qName, "prefix", prefix, "localName", localName, "value", value);
+        
                     // convert special srcML escaped element to characters
                     if (inEscape && localName == "char"sv /* && inUnit */) {
                         // use strtol() instead of atoi() since strtol() understands hex encoding of '0x0?'
                         [[maybe_unused]] char escapeValue = (char)strtol(value.data(), NULL, 0);
                     }
+
                     content.remove_prefix(valueEndPosition);
                     content.remove_prefix("\""sv.size());
                     content.remove_prefix(content.find_first_not_of(WHITESPACE));
@@ -538,13 +567,16 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     }
+
     content.remove_prefix(content.find_first_not_of(WHITESPACE) == content.npos ? content.size() : content.find_first_not_of(WHITESPACE));
     while (!content.empty() && content[0] == '<' && content[1] == '!' && content[2] == '-' && content[3] == '-') {
+        
         // parse XML comment
         assert(content.compare(0, "<!--"sv.size(), "<!--"sv) == 0);
         content.remove_prefix("<!--"sv.size());
         std::size_t tagEndPosition = content.find("-->"sv);
         if (tagEndPosition == content.npos) {
+        
             // refill content preserving unprocessed
             int bytesRead = refillContent(content);
             if (bytesRead < 0) {
@@ -568,17 +600,20 @@ int main(int argc, char* argv[]) {
         content.remove_prefix("-->"sv.size());
         content.remove_prefix(content.find_first_not_of(WHITESPACE) == content.npos ? content.size() : content.find_first_not_of(WHITESPACE));
     }
+
     if (!content.empty()) {
         std::cerr << "parser error : extra content at end of document\n";
         return 1;
     }
     TRACE("END DOCUMENT");
+
     const auto finishTime = std::chrono::steady_clock::now();
     const auto elapsedSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(finishTime - startTime).count();
     const double MLOCPerSecond = loc / elapsedSeconds / 1000000;
     int files = std::max(unitCount - 1, 1);
     std::cout.imbue(std::locale{""});
     int valueWidth = std::max(5, static_cast<int>(log10(totalBytes) * 1.3 + 1));
+    
     std::cout << "# srcFacts: " << url << '\n';
     std::cout << "| Measure      | " << std::setw(valueWidth + 3) << "Value |\n";
     std::cout << "|:-------------|-" << std::setw(valueWidth + 3) << std::setfill('-') << ":|\n" << std::setfill(' ');
@@ -597,5 +632,6 @@ int main(int argc, char* argv[]) {
     std::clog << totalBytes  << " bytes\n";
     std::clog << elapsedSeconds << " sec\n";
     std::clog << MLOCPerSecond << " MLOC/sec\n";
+    
     return 0;
 }
