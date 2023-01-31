@@ -70,6 +70,7 @@ int main(int argc, char* argv[]) {
     long totalBytes = 0;
     std::string_view content;
 
+    // Start tracing document
     TRACE("START DOCUMENT");
     int bytesRead = refillContent(content);
     if (bytesRead < 0) {
@@ -606,6 +607,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "parser error : extra content at end of document\n";
         return 1;
     }
+    // End tracing document
     TRACE("END DOCUMENT");
 
     const auto finishTime = std::chrono::steady_clock::now();
