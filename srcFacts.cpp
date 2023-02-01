@@ -602,6 +602,7 @@ int main(int argc, char* argv[]) {
     }
     // End tracing document
     TRACE("END DOCUMENT");
+    
     const auto finishTime = std::chrono::steady_clock::now();
     const auto elapsedSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(finishTime - startTime).count();
     const double MLOCPerSecond = loc / elapsedSeconds / 1000000;
