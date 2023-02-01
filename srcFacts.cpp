@@ -72,6 +72,7 @@ int main(int argc, char* argv[]) {
 
     // Start tracing document
     TRACE("START DOCUMENT");
+
     int bytesRead = refillContent(content);
     if (bytesRead < 0) {
         std::cerr << "parser error : File input error\n";
@@ -187,7 +188,6 @@ int main(int argc, char* argv[]) {
             content.remove_prefix(valueEndPosition + 1);
             content.remove_prefix(content.find_first_not_of(WHITESPACE));
         }
-        
         TRACE("XML DECLARATION", "version", version, "encoding", (encoding ? *encoding : ""), "standalone", (standalone ? *standalone : ""));
         assert(content.compare(0, "?>"sv.size(), "?>"sv) == 0);
         content.remove_prefix("?>"sv.size());
@@ -282,7 +282,6 @@ int main(int argc, char* argv[]) {
             [[maybe_unused]] const std::string_view characters(unescapedCharacter);
             TRACE("CHARACTERS", "characters", characters);
             ++textSize;
-        
         } else if (content[0] != '<') {
             
             // parse character non-entity references
@@ -293,7 +292,6 @@ int main(int argc, char* argv[]) {
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
             textSize += static_cast<int>(characters.size());
             content.remove_prefix(characters.size());
-        
         } else if (content[1] == '!' /* && content[0] == '<' */ && content[2] == '-' && content[3] == '-') {
             
             // parse XML comment
@@ -322,7 +320,6 @@ int main(int argc, char* argv[]) {
             TRACE("COMMENT", "content", comment);
             content.remove_prefix(tagEndPosition);
             content.remove_prefix("-->"sv.size());
-        
         } else if (content[1] == '!' /* && content[0] == '<' */ && content[2] == '[' && content[3] == 'C' && content[4] == 'D' &&
                    content[5] == 'A' && content[6] == 'T' && content[7] == 'A' && content[8] == '[') {
             
@@ -353,7 +350,6 @@ int main(int argc, char* argv[]) {
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
             content.remove_prefix(tagEndPosition);
             content.remove_prefix("]]>"sv.size());
-        
         } else if (content[1] == '?' /* && content[0] == '<' */) {
             
             // parse processing instruction
@@ -375,7 +371,6 @@ int main(int argc, char* argv[]) {
             content.remove_prefix(tagEndPosition);
             assert(content.compare(0, "?>"sv.size(), "?>"sv) == 0);
             content.remove_prefix("?>"sv.size());
-        
         } else if (content[1] == '/' /* && content[0] == '<' */) {
             
             // parse end tag
@@ -410,7 +405,6 @@ int main(int argc, char* argv[]) {
             --depth;
             if (depth == 0)
                 break;
-        
         } else if (content[0] == '<') {
             
             // parse start tag
@@ -447,7 +441,7 @@ int main(int argc, char* argv[]) {
                 ++commentCount;
             } else if (localName == "function"sv) {
                 ++functionCount;
-            } else if (localName == "unit"sv) {
+            } else if (localName == "unit"sv) { 
                 ++unitCount;
             } else if (localName == "class"sv) {
                 ++classCount;
@@ -498,7 +492,6 @@ int main(int argc, char* argv[]) {
                     assert(content.compare(0, "\""sv.size(), "\""sv) == 0);
                     content.remove_prefix("\""sv.size());
                     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-                
                 } else {
                     
                     // parse attribute
@@ -609,7 +602,6 @@ int main(int argc, char* argv[]) {
     }
     // End tracing document
     TRACE("END DOCUMENT");
-
     const auto finishTime = std::chrono::steady_clock::now();
     const auto elapsedSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(finishTime - startTime).count();
     const double MLOCPerSecond = loc / elapsedSeconds / 1000000;
