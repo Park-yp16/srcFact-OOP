@@ -12,4 +12,7 @@
 // parse XML declaration
 void parseXMLDeclaration(std::string_view& data);
 
+// parse DOCTYPE
+void parseDOCTYPE(std::string_view& data);
+
 #endif

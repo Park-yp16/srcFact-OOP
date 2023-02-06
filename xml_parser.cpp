@@ -1,6 +1,6 @@
 /*
     xml_parser.cpp
-    
+
     Implementation file for xml parser functions
 */
 
@@ -40,7 +40,7 @@ void parseXMLDeclaration(std::string_view& data) {
     assert(data.compare(0, "<?xml "sv.size(), "<?xml "sv) == 0);
     data.remove_prefix("<?xml"sv.size());
     data.remove_prefix(data.find_first_not_of(WHITESPACE));
-    
+
     // parse required version
     std::size_t nameEndPosition = data.find_first_of("= ");
     const std::string_view attr(data.substr(0, nameEndPosition));
@@ -67,7 +67,7 @@ void parseXMLDeclaration(std::string_view& data) {
     data.remove_prefix(valueEndPosition);
     data.remove_prefix("\""sv.size());
     data.remove_prefix(data.find_first_not_of(WHITESPACE));
-    
+
     // parse optional encoding and standalone attributes
     std::optional<std::string_view> encoding;
     std::optional<std::string_view> standalone;
@@ -96,9 +96,11 @@ void parseXMLDeclaration(std::string_view& data) {
         }
         if (attr2 == "encoding"sv) {
             encoding = data.substr(0, valueEndPosition);
-        } else if (attr2 == "standalone"sv) {
+        }
+        else if (attr2 == "standalone"sv) {
             standalone = data.substr(0, valueEndPosition);
-        } else {
+        }
+        else {
             std::cerr << "parser error: Invalid attribute " << attr2 << " in XML declaration\n";
             exit(1);
         }
@@ -129,7 +131,8 @@ void parseXMLDeclaration(std::string_view& data) {
         }
         if (!standalone && attr2 == "standalone"sv) {
             standalone = data.substr(0, valueEndPosition);
-        } else {
+        }
+        else {
             std::cerr << "parser error: Invalid attribute " << attr2 << " in XML declaration\n";
             exit(1);
         }
@@ -140,5 +143,54 @@ void parseXMLDeclaration(std::string_view& data) {
     TRACE("XML DECLARATION", "version", version, "encoding", (encoding ? *encoding : ""), "standalone", (standalone ? *standalone : ""));
     assert(data.compare(0, "?>"sv.size(), "?>"sv) == 0);
     data.remove_prefix("?>"sv.size());
+    data.remove_prefix(data.find_first_not_of(WHITESPACE));
+}
+
+// parse DOCTYPE
+void parseDOCTYPE(std::string_view& data) {
+
+    assert(data.compare(0, "<!DOCTYPE "sv.size(), "<!DOCTYPE "sv) == 0);
+    data.remove_prefix("<!DOCTYPE"sv.size());
+    int depthAngleBrackets = 1;
+    bool inSingleQuote = false;
+    bool inDoubleQuote = false;
+    bool inComment = false;
+    std::size_t p = 0;
+    while ((p = data.find_first_of("<>'\"-"sv, p)) != data.npos) {
+        if (data.compare(p, "<!--"sv.size(), "<!--"sv) == 0) {
+            inComment = true;
+            p += "<!--"sv.size();
+            continue;
+        }
+        else if (data.compare(p, "-->"sv.size(), "-->"sv) == 0) {
+            inComment = false;
+            p += "-->"sv.size();
+            continue;
+        }
+        if (inComment) {
+            ++p;
+            continue;
+        }
+        if (data[p] == '<' && !inSingleQuote && !inDoubleQuote) {
+            ++depthAngleBrackets;
+        }
+        else if (data[p] == '>' && !inSingleQuote && !inDoubleQuote) {
+            --depthAngleBrackets;
+        }
+        else if (data[p] == '\'') {
+            inSingleQuote = !inSingleQuote;
+        }
+        else if (data[p] == '"') {
+            inDoubleQuote = !inDoubleQuote;
+        }
+        if (depthAngleBrackets == 0)
+            break;
+        ++p;
+    }
+    [[maybe_unused]] const std::string_view contents(data.substr(0, p));
+    TRACE("DOCTYPE", "contents", contents);
+    data.remove_prefix(p);
+    assert(data[0] == '>');
+    data.remove_prefix(">"sv.size());
     data.remove_prefix(data.find_first_not_of(WHITESPACE));
 }
