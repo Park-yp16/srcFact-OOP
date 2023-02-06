@@ -30,17 +30,17 @@ const int BUFFER_SIZE = 16 * 16 * BLOCK_SIZE;
     @retval 0 EOF
     @retval -1 Read error
 */
-[[nodiscard]] int refillContent(std::string_view& content) {
+[[nodiscard]] int refillContent(std::string_view& data) {
 
     // initialize the internal buffer at first use
     static char buffer[BUFFER_SIZE];
 
     // preserve prefix of unprocessed characters to start of the buffer
-    std::copy(content.cbegin(), content.cend(), buffer);
+    std::copy(data.cbegin(), data.cend(), buffer);
 
     // read in multiple of whole blocks
     ssize_t bytesRead = 0;
-    while (((bytesRead = READ(0, (buffer + content.size()),
+    while (((bytesRead = READ(0, (buffer + data.size()),
         BUFFER_SIZE - BLOCK_SIZE)) == -1) && (errno == EINTR)) {
     }
     if (bytesRead == -1) {
@@ -49,7 +49,7 @@ const int BUFFER_SIZE = 16 * 16 * BLOCK_SIZE;
     }
 
     // set content to the start of the buffer
-    content = std::string_view(buffer, content.size() + bytesRead);
+    data = std::string_view(buffer, data.size() + bytesRead);
 
     return bytesRead;
 }
