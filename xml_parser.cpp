@@ -194,3 +194,18 @@ void parseDOCTYPE(std::string_view& data) {
     data.remove_prefix(">"sv.size());
     data.remove_prefix(data.find_first_not_of(WHITESPACE));
 }
+
+// bool doneReading = false;
+// refill content preserving unprocessed
+void refillContentUnprocessed(std::string_view& data, bool& doneReading, long& totalBytes){
+       
+    int bytesRead = refillContent(data);
+    if (bytesRead < 0) {
+        std::cerr << "parser error : File input error\n";
+        exit(1);
+    }
+    if (bytesRead == 0) {
+        doneReading = true;
+    }
+    totalBytes += bytesRead;
+}

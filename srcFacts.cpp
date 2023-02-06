@@ -107,15 +107,7 @@ int main(int argc, char* argv[]) {
         } else if (content.size() < BLOCK_SIZE) {
             
             // refill content preserving unprocessed
-            int bytesRead = refillContent(content);
-            if (bytesRead < 0) {
-                std::cerr << "parser error : File input error\n";
-                return 1;
-            }
-            if (bytesRead == 0) {
-                doneReading = true;
-            }
-            totalBytes += bytesRead;
+            refillContentUnprocessed(content, doneReading, totalBytes);
         }
 
         if (content[0] == '&') {

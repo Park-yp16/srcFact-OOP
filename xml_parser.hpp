@@ -15,4 +15,7 @@ void parseXMLDeclaration(std::string_view& data);
 // parse DOCTYPE
 void parseDOCTYPE(std::string_view& data);
 
+// refill content preserving unprocessed
+void refillContentUnprocessed(std::string_view& data, bool& doneReading, long& totalBytes);
+
 #endif
