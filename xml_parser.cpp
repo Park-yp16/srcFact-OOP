@@ -269,3 +269,27 @@ void parseXMLComment(std::string_view& data, bool& doneReading, long& totalBytes
     data.remove_prefix(tagEndPosition);
     data.remove_prefix("-->"sv.size());
 }
+
+// parse CDATA
+void parseCDATA(std::string_view& data, bool& doneReading, long& totalBytes, int& textSize, int& loc){
+    
+    data.remove_prefix("<![CDATA["sv.size());
+    std::size_t tagEndPosition = data.find("]]>"sv);
+    if (tagEndPosition == data.npos) {
+        
+        // refill content preserving unprocessed
+        refillContentUnprocessed(data, doneReading, totalBytes);
+        tagEndPosition = data.find("-->"sv);
+        tagEndPosition = data.find("]]>"sv);
+        if (tagEndPosition == data.npos) {
+            std::cerr << "parser error : Unterminated CDATA\n";
+            exit(1);
+        }
+    }
+    const std::string_view characters(data.substr(0, tagEndPosition));
+    TRACE("CDATA", "characters", characters);
+    textSize += static_cast<int>(characters.size());
+    loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
+    data.remove_prefix(tagEndPosition);
+    data.remove_prefix("]]>"sv.size());
+}
