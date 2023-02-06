@@ -24,4 +24,7 @@ void parseCharEntityRefs(std::string_view& data, int& textSize);
 // parse character non-entity references
 void parseCharNonEntityRefs(std::string_view& data, int& textSize, int& loc);
 
+// parse XML comment
+void parseXMLComment(std::string_view& data, bool& doneReading, long& totalBytes);
+
 #endif

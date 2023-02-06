@@ -247,3 +247,25 @@ void parseCharNonEntityRefs(std::string_view& data, int& textSize, int& loc){
     textSize += static_cast<int>(characters.size());
     data.remove_prefix(characters.size());
 }
+
+// parse XML comment
+void parseXMLComment(std::string_view& data, bool& doneReading, long& totalBytes){
+
+    assert(data.compare(0, "<!--"sv.size(), "<!--"sv) == 0);
+    data.remove_prefix("<!--"sv.size());
+    std::size_t tagEndPosition = data.find("-->"sv);
+    if (tagEndPosition == data.npos) {
+        
+        // refill content preserving unprocessed
+        refillContentUnprocessed(data, doneReading, totalBytes);
+        tagEndPosition = data.find("-->"sv);
+        if (tagEndPosition == data.npos) {
+            std::cerr << "parser error : Unterminated XML comment\n";
+            exit(1);
+        }
+    }
+    [[maybe_unused]] const std::string_view comment(data.substr(0, tagEndPosition));
+    TRACE("COMMENT", "content", comment);
+    data.remove_prefix(tagEndPosition);
+    data.remove_prefix("-->"sv.size());
+}

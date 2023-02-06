@@ -121,31 +121,7 @@ int main(int argc, char* argv[]) {
         } else if (content[1] == '!' /* && content[0] == '<' */ && content[2] == '-' && content[3] == '-') {
             
             // parse XML comment
-            assert(content.compare(0, "<!--"sv.size(), "<!--"sv) == 0);
-            content.remove_prefix("<!--"sv.size());
-            std::size_t tagEndPosition = content.find("-->"sv);
-            if (tagEndPosition == content.npos) {
-                
-                // refill content preserving unprocessed
-                int bytesRead = refillContent(content);
-                if (bytesRead < 0) {
-                    std::cerr << "parser error : File input error\n";
-                    return 1;
-                }
-                if (bytesRead == 0) {
-                    doneReading = true;
-                }
-                totalBytes += bytesRead;
-                tagEndPosition = content.find("-->"sv);
-                if (tagEndPosition == content.npos) {
-                    std::cerr << "parser error : Unterminated XML comment\n";
-                    return 1;
-                }
-            }
-            [[maybe_unused]] const std::string_view comment(content.substr(0, tagEndPosition));
-            TRACE("COMMENT", "content", comment);
-            content.remove_prefix(tagEndPosition);
-            content.remove_prefix("-->"sv.size());
+            parseXMLComment(content, doneReading, totalBytes);
         } else if (content[1] == '!' /* && content[0] == '<' */ && content[2] == '[' && content[3] == 'C' && content[4] == 'D' &&
                    content[5] == 'A' && content[6] == 'T' && content[7] == 'A' && content[8] == '[') {
             
