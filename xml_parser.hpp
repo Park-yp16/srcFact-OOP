@@ -21,4 +21,7 @@ void refillContentUnprocessed(std::string_view& data, bool& doneReading, long& t
 // parse character entity references
 void parseCharEntityRefs(std::string_view& data, int& textSize);
 
+// parse character non-entity references
+void parseCharNonEntityRefs(std::string_view& data, int& textSize, int& loc);
+
 #endif

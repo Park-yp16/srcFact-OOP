@@ -117,13 +117,7 @@ int main(int argc, char* argv[]) {
         } else if (content[0] != '<') {
             
             // parse character non-entity references
-            assert(content[0] != '<' && content[0] != '&');
-            std::size_t characterEndPosition = content.find_first_of("<&");
-            const std::string_view characters(content.substr(0, characterEndPosition));
-            TRACE("CHARACTERS", "characters", characters);
-            loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
-            textSize += static_cast<int>(characters.size());
-            content.remove_prefix(characters.size());
+            parseCharNonEntityRefs(content, textSize, loc);
         } else if (content[1] == '!' /* && content[0] == '<' */ && content[2] == '-' && content[3] == '-') {
             
             // parse XML comment

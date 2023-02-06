@@ -10,6 +10,7 @@
 #include <bitset>
 #include <optional>
 #include <cassert>
+#include <algorithm>
 
 // provides literal string operator""sv
 using namespace std::literals::string_view_literals;
@@ -233,4 +234,16 @@ void parseCharEntityRefs(std::string_view& data, int& textSize){
     [[maybe_unused]] const std::string_view characters(unescapedCharacter);
     TRACE("CHARACTERS", "characters", characters);
     ++textSize;
+}
+
+// parse character non-entity references
+void parseCharNonEntityRefs(std::string_view& data, int& textSize, int& loc){
+    
+    assert(data[0] != '<' && data[0] != '&');
+    std::size_t characterEndPosition = data.find_first_of("<&");
+    const std::string_view characters(data.substr(0, characterEndPosition));
+    TRACE("CHARACTERS", "characters", characters);
+    loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
+    textSize += static_cast<int>(characters.size());
+    data.remove_prefix(characters.size());
 }
