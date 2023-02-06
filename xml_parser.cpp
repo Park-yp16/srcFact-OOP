@@ -209,3 +209,28 @@ void refillContentUnprocessed(std::string_view& data, bool& doneReading, long& t
     }
     totalBytes += bytesRead;
 }
+
+// parse character entity references
+void parseCharEntityRefs(std::string_view& data, int& textSize){
+    
+    std::string_view unescapedCharacter;
+    std::string_view escapedCharacter;
+    if (data[1] == 'l' && data[2] == 't' && data[3] == ';') {
+        unescapedCharacter = "<";
+        escapedCharacter = "&lt;"sv;
+    } else if (data[1] == 'g' && data[2] == 't' && data[3] == ';') {
+        unescapedCharacter = ">";
+        escapedCharacter = "&gt;"sv;
+    } else if (data[1] == 'a' && data[2] == 'm' && data[3] == 'p' && data[4] == ';') {
+        unescapedCharacter = "&";
+        escapedCharacter = "&amp;"sv;
+    } else {
+        unescapedCharacter = "&";
+        escapedCharacter = "&"sv;
+    }
+    assert(data.compare(0, escapedCharacter.size(), escapedCharacter) == 0);
+    data.remove_prefix(escapedCharacter.size());
+    [[maybe_unused]] const std::string_view characters(unescapedCharacter);
+    TRACE("CHARACTERS", "characters", characters);
+    ++textSize;
+}
