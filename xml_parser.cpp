@@ -316,3 +316,36 @@ void parseProcessingInstruction(std::string_view& text){
     assert(text.compare(0, "?>"sv.size(), "?>"sv) == 0);
     text.remove_prefix("?>"sv.size());
 }
+
+// parse end tag
+void parseEndTag(std::string_view& text){
+
+    assert(text.compare(0, "</"sv.size(), "</"sv) == 0);
+    text.remove_prefix("</"sv.size());
+    if (text[0] == ':') {
+        std::cerr << "parser error : Invalid end tag name\n";
+        exit(1);
+    }
+    std::size_t nameEndPosition = text.find_first_of(NAMEEND);
+    if (nameEndPosition == text.size()) {
+        std::cerr << "parser error : Unterminated end tag '" << text.substr(0, nameEndPosition) << "'\n";
+        exit(1);
+    }
+    size_t colonPosition = 0;
+    if (text[nameEndPosition] == ':') {
+        colonPosition = nameEndPosition;
+        nameEndPosition = text.find_first_of(NAMEEND, nameEndPosition + 1);
+    }
+    const std::string_view qName(text.substr(0, nameEndPosition));
+    if (qName.empty()) {
+        std::cerr << "parser error: EndTag: invalid element name\n";
+        exit(1);
+    }
+    [[maybe_unused]] const std::string_view prefix(qName.substr(0, colonPosition));
+    [[maybe_unused]] const std::string_view localName(qName.substr(colonPosition ? colonPosition + 1 : 0));
+    TRACE("END TAG", "qName", qName, "prefix", prefix, "localName", localName);
+    text.remove_prefix(nameEndPosition);
+    text.remove_prefix(text.find_first_not_of(WHITESPACE));
+    assert(text.compare(0, ">"sv.size(), ">"sv) == 0);
+    text.remove_prefix(">"sv.size());
+}
