@@ -10,24 +10,27 @@
 #include <string_view>
 
 // parse XML declaration
-void parseXMLDeclaration(std::string_view& data);
+void parseXMLDeclaration(std::string_view& text);
 
 // parse DOCTYPE
-void parseDOCTYPE(std::string_view& data);
+void parseDOCTYPE(std::string_view& text);
 
 // refill content preserving unprocessed
-void refillContentUnprocessed(std::string_view& data, bool& doneReading, long& totalBytes);
+void refillContentUnprocessed(std::string_view& text, bool& doneReading, long& totalBytes);
 
 // parse character entity references
-void parseCharEntityRefs(std::string_view& data, int& textSize);
+void parseCharEntityRefs(std::string_view& text, int& textSize);
 
 // parse character non-entity references
-void parseCharNonEntityRefs(std::string_view& data, int& textSize, int& loc);
+void parseCharNonEntityRefs(std::string_view& text, int& textSize, int& loc);
 
 // parse XML comment
-void parseXMLComment(std::string_view& data, bool& doneReading, long& totalBytes);
+void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes);
 
 // parse CDATA
-void parseCDATA(std::string_view& data, bool& doneReading, long& totalBytes, int& textSize, int& loc);
+void parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes, int& textSize, int& loc);
+
+// parse processing instruction
+void parseProcessingInstruction(std::string_view& text);
 
 #endif
