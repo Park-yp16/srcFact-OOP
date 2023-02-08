@@ -187,44 +187,7 @@ int main(int argc, char* argv[]) {
                 if (content[0] == 'x' && content[1] == 'm' && content[2] == 'l' && content[3] == 'n' && content[4] == 's' && (content[5] == ':' || content[5] == '=')) {
                     
                     // parse XML namespace
-                    assert(content.compare(0, "xmlns"sv.size(), "xmlns"sv) == 0);
-                    content.remove_prefix("xmlns"sv.size());
-                    std::size_t nameEndPosition = content.find('=');
-                    if (nameEndPosition == content.npos) {
-                        std::cerr << "parser error : incomplete namespace\n";
-                        return 1;
-                    }
-                    std::size_t prefixSize = 0;
-                    if (content[0] == ':') {
-                        content.remove_prefix(":"sv.size());
-                        --nameEndPosition;
-                        prefixSize = nameEndPosition;
-                    }
-                    [[maybe_unused]] const std::string_view prefix(content.substr(0, prefixSize));
-                    content.remove_prefix(nameEndPosition);
-                    content.remove_prefix("="sv.size());
-                    content.remove_prefix(content.find_first_not_of(WHITESPACE));
-                    if (content.empty()) {
-                        std::cerr << "parser error : incomplete namespace\n";
-                        return 1;
-                    }
-                    const auto delimiter = content[0];
-                    if (delimiter != '"' && delimiter != '\'') {
-                        std::cerr << "parser error : incomplete namespace\n";
-                        return 1;
-                    }
-                    content.remove_prefix("\""sv.size());
-                    std::size_t valueEndPosition = content.find(delimiter);
-                    if (valueEndPosition == content.npos) {
-                        std::cerr << "parser error : incomplete namespace\n";
-                        return 1;
-                    }
-                    [[maybe_unused]] const std::string_view uri(content.substr(0, valueEndPosition));
-                    TRACE("NAMESPACE", "prefix", prefix, "uri", uri);
-                    content.remove_prefix(valueEndPosition);
-                    assert(content.compare(0, "\""sv.size(), "\""sv) == 0);
-                    content.remove_prefix("\""sv.size());
-                    content.remove_prefix(content.find_first_not_of(WHITESPACE));
+                    parseXMLNamespace(content);
                 } else {
                     
                     // parse attribute
