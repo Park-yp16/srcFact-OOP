@@ -331,8 +331,14 @@ void parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes, int
     text.remove_prefix("]]>"sv.size());
 }
 
+// check if processing instruction
+bool isProcessingInstruction(std::string_view& text) {
+
+    return (text[1] == '?' /* && text[0] == '<' */);
+}
+
 // parse processing instruction
-void parseProcessingInstruction(std::string_view& text){
+void parseProcessingInstruction(std::string_view& text) {
 
     assert(text.compare(0, "<?"sv.size(), "<?"sv) == 0);
     text.remove_prefix("<?"sv.size());

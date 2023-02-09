@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
             
             // parse CDATA
             parseCDATA(content, doneReading, totalBytes, textSize, loc);
-        } else if (content[1] == '?' /* && content[0] == '<' */) {
+        } else if (isProcessingInstruction(content)) {
             
             // parse processing instruction
             parseProcessingInstruction(content);

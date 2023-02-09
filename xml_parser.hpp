@@ -27,6 +27,9 @@ bool isXMLComment(std::string_view& text);
 // check if CDATA
 bool isCDATA(std::string_view& text);
 
+// check if processing instruction
+bool isProcessingInstruction(std::string_view& text);
+
 // parse XML declaration
 void parseXMLDeclaration(std::string_view& text);
 
