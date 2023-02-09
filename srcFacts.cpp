@@ -107,19 +107,23 @@ int main(int argc, char* argv[]) {
         } else if (content.size() < BLOCK_SIZE) {
             
             // refill content preserving unprocessed
-            refillContentUnprocessed(content, doneReading, totalBytes);
+            refillContentUnprocessed(content, doneReading);
+            totalBytes += bytesRead;
         }
 
         if (isCharEntityRefs(content)) {
             
             // parse character entity references
-            parseCharEntityRefs(content, textSize);
+            parseCharEntityRefs(content);
+            ++textSize;
         } else if (isCharNonEntityRefs(content)) {
             
             // parse character non-entity references
-            std::string_view characters;
-            parseCharNonEntityRefs(content, textSize, loc);
-    
+            auto characters = parseCharNonEntityRefs(content);
+            TRACE("CHARACTERS", "characters", characters);
+            loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
+            textSize += static_cast<int>(characters.size());
+            content.remove_prefix(characters.size());
         } else if (isXMLComment(content)) {
             
             // parse XML comment

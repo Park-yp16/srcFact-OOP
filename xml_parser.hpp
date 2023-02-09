@@ -46,13 +46,13 @@ void parseXMLDeclaration(std::string_view& text);
 void parseDOCTYPE(std::string_view& text);
 
 // refill content preserving unprocessed
-void refillContentUnprocessed(std::string_view& text, bool& doneReading, long& totalBytes);
+int refillContentUnprocessed(std::string_view& text, bool& doneReading);
 
 // parse character entity references
-void parseCharEntityRefs(std::string_view& text, int& textSize);
+void parseCharEntityRefs(std::string_view& text);
 
 // parse character non-entity references
-void parseCharNonEntityRefs(std::string_view& text, int& textSize, int& loc);
+const std::string_view parseCharNonEntityRefs(std::string_view& text);
 
 // parse XML comment
 void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes);

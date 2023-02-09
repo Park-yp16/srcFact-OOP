@@ -210,7 +210,7 @@ void parseDOCTYPE(std::string_view& text) {
 
 // bool doneReading = false;
 // refill content preserving unprocessed
-void refillContentUnprocessed(std::string_view& text, bool& doneReading, long& totalBytes) {
+int refillContentUnprocessed(std::string_view& text, bool& doneReading) {
        
     int bytesRead = refillContent(text);
     if (bytesRead < 0) {
@@ -220,7 +220,7 @@ void refillContentUnprocessed(std::string_view& text, bool& doneReading, long& t
     if (bytesRead == 0) {
         doneReading = true;
     }
-    totalBytes += bytesRead;
+     return bytesRead;
 }
 
 // check if character entity references
@@ -230,7 +230,7 @@ bool isCharEntityRefs(std::string_view& text) {
 }
 
 // parse character entity references
-void parseCharEntityRefs(std::string_view& text, int& textSize) {
+void parseCharEntityRefs(std::string_view& text) {
     
     std::string_view unescapedCharacter;
     std::string_view escapedCharacter;
@@ -251,7 +251,6 @@ void parseCharEntityRefs(std::string_view& text, int& textSize) {
     text.remove_prefix(escapedCharacter.size());
     [[maybe_unused]] const std::string_view characters(unescapedCharacter);
     TRACE("CHARACTERS", "characters", characters);
-    ++textSize;
 }
 
 // check if character non-entity references
@@ -261,15 +260,12 @@ bool isCharNonEntityRefs(std::string_view& text) {
 }
 
 // parse character non-entity references
-void parseCharNonEntityRefs(std::string_view& text, int& textSize, int& loc) {
+const std::string_view parseCharNonEntityRefs(std::string_view& text) {
     
     assert(text[0] != '<' && text[0] != '&');
     std::size_t characterEndPosition = text.find_first_of("<&");
     const std::string_view characters(text.substr(0, characterEndPosition));
-    TRACE("CHARACTERS", "characters", characters);
-    loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
-    textSize += static_cast<int>(characters.size());
-    text.remove_prefix(characters.size());
+    return characters;
 }
 
 // check if comment
@@ -287,7 +283,8 @@ void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes
     if (tagEndPosition == text.npos) {
         
         // refill content preserving unprocessed
-        refillContentUnprocessed(text, doneReading, totalBytes);
+        int bytesRead = refillContentUnprocessed(text, doneReading);
+        totalBytes += bytesRead;
         tagEndPosition = text.find("-->"sv);
         if (tagEndPosition == text.npos) {
             std::cerr << "parser error : Unterminated XML comment\n";
@@ -315,7 +312,7 @@ void parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes, int
     if (tagEndPosition == text.npos) {
         
         // refill content preserving unprocessed
-        refillContentUnprocessed(text, doneReading, totalBytes);
+        refillContentUnprocessed(text, doneReading);
         tagEndPosition = text.find("-->"sv);
         tagEndPosition = text.find("]]>"sv);
         if (tagEndPosition == text.npos) {
