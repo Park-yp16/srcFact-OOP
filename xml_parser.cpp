@@ -254,6 +254,12 @@ void parseCharEntityRefs(std::string_view& text, int& textSize){
     ++textSize;
 }
 
+// check if character non-entity references
+bool isCharNonEntityRefs(std::string_view& text) {
+
+    return (text[0] != '<');
+}
+
 // parse character non-entity references
 void parseCharNonEntityRefs(std::string_view& text, int& textSize, int& loc){
     

@@ -18,6 +18,9 @@ bool isDOCTYPE(std::string_view& text);
 // check if character entity references
 bool isCharEntityRefs(std::string_view& text);
 
+// check if character non-entity references
+bool isCharNonEntityRefs(std::string_view& text);
+
 // check if declaration
 bool isXMLDeclaration(std::string_view& text);
 

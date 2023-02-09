@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
             
             // parse character entity references
             parseCharEntityRefs(content, textSize);
-        } else if (content[0] != '<') {
+        } else if (isCharNonEntityRefs(content)) {
             
             // parse character non-entity references
             parseCharNonEntityRefs(content, textSize, loc);
