@@ -223,7 +223,6 @@ void parseDOCTYPE(std::string_view& text) {
     text.remove_prefix(text.find_first_not_of(WHITESPACE));
 }
 
-// bool doneReading = false;
 // refill content preserving unprocessed
 int refillContentUnprocessed(std::string_view& text, bool& doneReading) {
        
@@ -413,6 +412,38 @@ void parseEndTag(std::string_view& text) {
 // check if start tag
 bool isStartTag(std::string_view& text) {
     return (text[0] == '<');
+}
+
+// parse start tag
+std::string_view parseStartTag(std::string_view& text) {
+    assert(text.compare(0, "<"sv.size(), "<"sv) == 0);
+    text.remove_prefix("<"sv.size());
+    if (text[0] == ':') {
+        std::cerr << "parser error : Invalid start tag name\n";
+        exit(1);
+    }
+    std::size_t nameEndPosition = text.find_first_of(NAMEEND);
+    if (nameEndPosition == text.size()) {
+        std::cerr << "parser error : Unterminated start tag '" << text.substr(0, nameEndPosition) << "'\n";
+        exit(1);
+    }
+    size_t colonPosition = 0;
+    if (text[nameEndPosition] == ':') {
+        colonPosition = nameEndPosition;
+        nameEndPosition = text.find_first_of(NAMEEND, nameEndPosition + 1);
+    }
+    const std::string_view qName(text.substr(0, nameEndPosition));
+    if (qName.empty()) {
+        std::cerr << "parser error: StartTag: invalid element name\n";
+        exit(1);
+    }
+    [[maybe_unused]] const std::string_view prefix(qName.substr(0, colonPosition));
+    const std::string_view localName(qName.substr(colonPosition ? colonPosition + 1 : 0, nameEndPosition));
+    TRACE("START TAG", "qName", qName, "prefix", prefix, "localName", localName);
+    text.remove_prefix(nameEndPosition);
+    text.remove_prefix(text.find_first_not_of(WHITESPACE));
+
+    return localName;
 }
 
 // check if namespace

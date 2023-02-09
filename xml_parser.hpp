@@ -69,6 +69,9 @@ void parseProcessingInstruction(std::string_view& text);
 // parse end tag
 void parseEndTag(std::string_view& text);
 
+// parse start tag
+std::string_view parseStartTag(std::string_view& text);
+
 // parse XML namespace
 void parseXMLNamespace(std::string_view& text);
 
