@@ -210,7 +210,7 @@ void parseDOCTYPE(std::string_view& text) {
 
 // bool doneReading = false;
 // refill content preserving unprocessed
-void refillContentUnprocessed(std::string_view& text, bool& doneReading, long& totalBytes){
+void refillContentUnprocessed(std::string_view& text, bool& doneReading, long& totalBytes) {
        
     int bytesRead = refillContent(text);
     if (bytesRead < 0) {
@@ -224,13 +224,13 @@ void refillContentUnprocessed(std::string_view& text, bool& doneReading, long& t
 }
 
 // check if character entity references
-bool isCharEntityRefs(std::string_view& text){
+bool isCharEntityRefs(std::string_view& text) {
     
     return (text[0] == '&');
 }
 
 // parse character entity references
-void parseCharEntityRefs(std::string_view& text, int& textSize){
+void parseCharEntityRefs(std::string_view& text, int& textSize) {
     
     std::string_view unescapedCharacter;
     std::string_view escapedCharacter;
@@ -261,7 +261,7 @@ bool isCharNonEntityRefs(std::string_view& text) {
 }
 
 // parse character non-entity references
-void parseCharNonEntityRefs(std::string_view& text, int& textSize, int& loc){
+void parseCharNonEntityRefs(std::string_view& text, int& textSize, int& loc) {
     
     assert(text[0] != '<' && text[0] != '&');
     std::size_t characterEndPosition = text.find_first_of("<&");
@@ -272,14 +272,14 @@ void parseCharNonEntityRefs(std::string_view& text, int& textSize, int& loc){
     text.remove_prefix(characters.size());
 }
 
-// check if XML comment
+// check if comment
 bool isXMLComment(std::string_view& text) {
     
     return (text[1] == '!' /* && text[0] == '<' */ && text[2] == '-' && text[3] == '-');
 }
 
 // parse XML comment
-void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes){
+void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes) {
 
     assert(text.compare(0, "<!--"sv.size(), "<!--"sv) == 0);
     text.remove_prefix("<!--"sv.size());
@@ -300,8 +300,15 @@ void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes
     text.remove_prefix("-->"sv.size());
 }
 
+// check if CDATA
+bool isCDATA(std::string_view& text) {
+
+    return (text[1] == '!' /* && text[0] == '<' */ && text[2] == '[' && text[3] == 'C' && text[4] == 'D' &&
+            text[5] == 'A' && text[6] == 'T' && text[7] == 'A' && text[8] == '[');
+}
+
 // parse CDATA
-void parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes, int& textSize, int& loc){
+void parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes, int& textSize, int& loc) {
     
     text.remove_prefix("<![Ctext["sv.size());
     std::size_t tagEndPosition = text.find("]]>"sv);
