@@ -404,8 +404,14 @@ void parseEndTag(std::string_view& text) {
     text.remove_prefix(">"sv.size());
 }
 
+// check if namespace
+bool isXMLNamespace(std::string_view& text) {
+
+    return (text[0] == 'x' && text[1] == 'm' && text[2] == 'l' && text[3] == 'n' && text[4] == 's' && (text[5] == ':' || text[5] == '='));
+}
+
 // parse XML namespace
-void parseXMLNamespace(std::string_view& text){
+void parseXMLNamespace(std::string_view& text) {
 
     assert(text.compare(0, "xmlns"sv.size(), "xmlns"sv) == 0);
     text.remove_prefix("xmlns"sv.size());
