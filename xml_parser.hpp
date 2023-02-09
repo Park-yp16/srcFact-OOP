@@ -39,6 +39,9 @@ bool isStartTag(std::string_view& text);
 // check if namespace
 bool isXMLNamespace(std::string_view& text);
 
+// check for file input
+int checkFIleInput(std::string_view& text);
+
 // parse XML declaration
 void parseXMLDeclaration(std::string_view& text);
 

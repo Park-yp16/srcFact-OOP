@@ -75,15 +75,7 @@ int main(int argc, char* argv[]) {
     TRACE("START DOCUMENT");
 
     // check for file input
-    int bytesRead = refillContent(content);
-    if (bytesRead < 0) {
-        std::cerr << "parser error : File input error\n";
-        return 1;
-    }
-    if (bytesRead == 0) {
-        std::cerr << "parser error : Empty file\n";
-        return 1;
-    }
+    auto bytesRead = checkFIleInput(content);
     totalBytes += bytesRead;
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
     

@@ -35,6 +35,21 @@ constexpr auto NAMEEND = "> /\":=\n\t\r"sv;
 #define TRACE(...)
 #endif
 
+// check for file input
+int checkFIleInput(std::string_view& text) {
+
+    int bytesRead = refillContent(text);
+    if (bytesRead < 0) {
+        std::cerr << "parser error : File input error\n";
+        return 1;
+    }
+    if (bytesRead == 0) {
+        std::cerr << "parser error : Empty file\n";
+        return 1;
+    }
+    return bytesRead;
+}
+
 // check if declaration
 bool isXMLDeclaration(std::string_view& text) {
 
