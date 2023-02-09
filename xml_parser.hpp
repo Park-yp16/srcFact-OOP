@@ -9,6 +9,9 @@
 
 #include <string_view>
 
+// check if declaration
+bool isXMLDeclaration(std::string_view& text);
+
 // parse XML declaration
 void parseXMLDeclaration(std::string_view& text);
 
@@ -38,5 +41,5 @@ void parseEndTag(std::string_view& text);
 
 // parse XML namespace
 void parseXMLNamespace(std::string_view& text);
-
+ 
 #endif

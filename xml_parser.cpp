@@ -35,6 +35,12 @@ constexpr auto NAMEEND = "> /\":=\n\t\r"sv;
 #define TRACE(...)
 #endif
 
+// check if declaration
+bool isXMLDeclaration(std::string_view& text) {
+
+    return (text[0] == '<' && text[1] == '?' && text[2] == 'x' && text[3] == 'm' && text[4] == 'l' && text[5] == ' ');
+}
+
 // parse XML declaration
 void parseXMLDeclaration(std::string_view& text) {
 

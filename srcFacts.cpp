@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
     totalBytes += bytesRead;
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
     
-    if (content[0] == '<' && content[1] == '?' && content[2] == 'x' && content[3] == 'm' && content[4] == 'l' && content[5] == ' ') {
+    if (isXMLDeclaration(content)) {
         
         // parse XML declaration
         parseXMLDeclaration(content);
