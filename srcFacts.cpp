@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
             
             // parse character non-entity references
             parseCharNonEntityRefs(content, textSize, loc);
-        } else if (content[1] == '!' /* && content[0] == '<' */ && content[2] == '-' && content[3] == '-') {
+        } else if (isXMLComment(content)) {
             
             // parse XML comment
             parseXMLComment(content, doneReading, totalBytes);

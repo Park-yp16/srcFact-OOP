@@ -272,6 +272,12 @@ void parseCharNonEntityRefs(std::string_view& text, int& textSize, int& loc){
     text.remove_prefix(characters.size());
 }
 
+// check if XML comment
+bool isXMLComment(std::string_view& text) {
+    
+    return (text[1] == '!' /* && text[0] == '<' */ && text[2] == '-' && text[3] == '-');
+}
+
 // parse XML comment
 void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes){
 
