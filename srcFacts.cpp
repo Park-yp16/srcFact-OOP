@@ -131,7 +131,11 @@ int main(int argc, char* argv[]) {
         } else if (isCDATA(content)) {
             
             // parse CDATA
-            parseCDATA(content, doneReading, totalBytes, textSize, loc);
+            auto characters = parseCDATA(content, doneReading, totalBytes);
+            TRACE("CDATA", "characters", characters);
+            textSize += static_cast<int>(characters.size());
+            loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
+    
         } else if (isProcessingInstruction(content)) {
             
             // parse processing instruction

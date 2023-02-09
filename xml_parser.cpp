@@ -305,14 +305,15 @@ bool isCDATA(std::string_view& text) {
 }
 
 // parse CDATA
-void parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes, int& textSize, int& loc) {
+std::string_view parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes) {
     
     text.remove_prefix("<![Ctext["sv.size());
     std::size_t tagEndPosition = text.find("]]>"sv);
     if (tagEndPosition == text.npos) {
         
         // refill content preserving unprocessed
-        refillContentUnprocessed(text, doneReading);
+        int bytesRead = refillContentUnprocessed(text, doneReading);
+        totalBytes += bytesRead;
         tagEndPosition = text.find("-->"sv);
         tagEndPosition = text.find("]]>"sv);
         if (tagEndPosition == text.npos) {
@@ -321,11 +322,13 @@ void parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes, int
         }
     }
     const std::string_view characters(text.substr(0, tagEndPosition));
-    TRACE("CDATA", "characters", characters);
-    textSize += static_cast<int>(characters.size());
-    loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
+    // TRACE("CDATA", "characters", characters);
+    // textSize += static_cast<int>(characters.size());
+    // loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
     text.remove_prefix(tagEndPosition);
     text.remove_prefix("]]>"sv.size());
+
+    return characters;
 }
 
 // check if processing instruction

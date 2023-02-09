@@ -58,7 +58,7 @@ const std::string_view parseCharNonEntityRefs(std::string_view& text);
 void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes);
 
 // parse CDATA
-void parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes, int& textSize, int& loc);
+std::string_view parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes);
 
 // parse processing instruction
 void parseProcessingInstruction(std::string_view& text);
