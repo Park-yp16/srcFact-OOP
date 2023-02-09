@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
             refillContentUnprocessed(content, doneReading, totalBytes);
         }
 
-        if (content[0] == '&') {
+        if (isCharEntityRefs(content)) {
             
             // parse character entity references
             parseCharEntityRefs(content, textSize);

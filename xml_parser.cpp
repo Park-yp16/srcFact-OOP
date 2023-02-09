@@ -155,7 +155,7 @@ void parseXMLDeclaration(std::string_view& text) {
 
 // check if DOCTYPE
 bool isDOCTYPE(std::string_view& text) {
-    
+
     return (text[1] == '!' && text[0] == '<' && text[2] == 'D' && text[3] == 'O' && text[4] == 'C' && text[5] == 'T' && text[6] == 'Y' && text[7] == 'P' && text[8] == 'E' && text[9] == ' ');
 }
 
@@ -221,6 +221,12 @@ void refillContentUnprocessed(std::string_view& text, bool& doneReading, long& t
         doneReading = true;
     }
     totalBytes += bytesRead;
+}
+
+// check if character entity references
+bool isCharEntityRefs(std::string_view& text){
+    
+    return (text[0] == '&');
 }
 
 // parse character entity references
