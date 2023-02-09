@@ -366,11 +366,6 @@ bool isEndTag(std::string_view& text) {
     return (text[1] == '/' /* && text[0] == '<' */);
 }
 
-// check if start tag
-bool isStartTag(std::string_view& text) {
-    return (text[0] == '<');
-}
-
 // parse end tag
 void parseEndTag(std::string_view& text) {
 
@@ -402,6 +397,11 @@ void parseEndTag(std::string_view& text) {
     text.remove_prefix(text.find_first_not_of(WHITESPACE));
     assert(text.compare(0, ">"sv.size(), ">"sv) == 0);
     text.remove_prefix(">"sv.size());
+}
+
+// check if start tag
+bool isStartTag(std::string_view& text) {
+    return (text[0] == '<');
 }
 
 // check if namespace
@@ -452,3 +452,58 @@ void parseXMLNamespace(std::string_view& text) {
     text.remove_prefix("\""sv.size());
     text.remove_prefix(text.find_first_not_of(WHITESPACE));
 }
+
+// parse attribute
+void parseAttribute(std::string_view& text, bool& inEscape, std::string& url) {
+    
+    std::size_t nameEndPosition = text.find_first_of(NAMEEND);
+    if (nameEndPosition == text.size()) {
+        std::cerr << "parser error : Empty attribute name" << '\n';
+        exit(1);
+    }
+    size_t colonPosition = 0;
+    if (text[nameEndPosition] == ':') {
+        colonPosition = nameEndPosition;
+        nameEndPosition = text.find_first_of(NAMEEND, nameEndPosition + 1);
+    }
+    const std::string_view qName(text.substr(0, nameEndPosition));
+    [[maybe_unused]] const std::string_view prefix(qName.substr(0, colonPosition));
+    const std::string_view localName(qName.substr(colonPosition ? colonPosition + 1 : 0));
+    text.remove_prefix(nameEndPosition);
+    text.remove_prefix(text.find_first_not_of(WHITESPACE));
+    if (text.empty()) {
+        std::cerr << "parser error : attribute " << qName << " incomplete attribute\n";
+        exit(1);
+    }
+    if (text[0] != '=') {
+        std::cerr << "parser error : attribute " << qName << " missing =\n";
+        exit(1);
+    }
+    text.remove_prefix("="sv.size());
+    text.remove_prefix(text.find_first_not_of(WHITESPACE));
+    const auto delimiter = text[0];
+    if (delimiter != '"' && delimiter != '\'') {
+        std::cerr << "parser error : attribute " << qName << " missing delimiter\n";
+        exit(1);
+    }
+    text.remove_prefix("\""sv.size());
+    std::size_t valueEndPosition = text.find(delimiter);
+    if (valueEndPosition == text.npos) {
+        std::cerr << "parser error : attribute " << qName << " missing delimiter\n";
+        exit(1);
+    }
+    const std::string_view value(text.substr(0, valueEndPosition));
+    if (localName == "url"sv)
+        url = value;
+    TRACE("ATTRIBUTE", "qname", qName, "prefix", prefix, "localName", localName, "value", value)
+    // convert special srcML escaped element to characters
+    if (inEscape && localName == "char"sv /* && inUnit */) {
+        // use strtol() instead of atoi() since strtol() understands hex encoding of '0x0?'
+        [[maybe_unused]] char escapeValue = (char)strtol(value.data(), NULL, 0);
+    }
+
+    text.remove_prefix(valueEndPosition);
+    text.remove_prefix("\""sv.size());
+    text.remove_prefix(text.find_first_not_of(WHITESPACE));
+}
+

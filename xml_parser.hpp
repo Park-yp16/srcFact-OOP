@@ -68,5 +68,8 @@ void parseEndTag(std::string_view& text);
 
 // parse XML namespace
 void parseXMLNamespace(std::string_view& text);
+
+// parse attribute
+void parseAttribute(std::string_view& text, bool& inEscape, std::string& url);
  
 #endif
