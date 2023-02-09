@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
             --depth;
             if (depth == 0)
                 break;
-        } else if (content[0] == '<') {
+        } else if (isStartTag(content)) {
             
             // parse start tag
             assert(content.compare(0, "<"sv.size(), "<"sv) == 0);

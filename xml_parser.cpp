@@ -366,6 +366,11 @@ bool isEndTag(std::string_view& text) {
     return (text[1] == '/' /* && text[0] == '<' */);
 }
 
+// check if start tag
+bool isStartTag(std::string_view& text) {
+    return (text[0] == '<');
+}
+
 // parse end tag
 void parseEndTag(std::string_view& text) {
 

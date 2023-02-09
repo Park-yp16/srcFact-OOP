@@ -33,6 +33,9 @@ bool isProcessingInstruction(std::string_view& text);
 // check if end tag
 bool isEndTag(std::string_view& text);
 
+// check if start tag
+bool isStartTag(std::string_view& text);
+
 // parse XML declaration
 void parseXMLDeclaration(std::string_view& text);
 
