@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
             
             // parse processing instruction
             parseProcessingInstruction(content);
-        } else if (content[1] == '/' /* && content[0] == '<' */) {
+        } else if (isEndTag(content)) {
             
             // parse end tag
             parseEndTag(content);

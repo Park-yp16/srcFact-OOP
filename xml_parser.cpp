@@ -360,8 +360,14 @@ void parseProcessingInstruction(std::string_view& text) {
     text.remove_prefix("?>"sv.size());
 }
 
+// check if end tag
+bool isEndTag(std::string_view& text) {
+
+    return (text[1] == '/' /* && text[0] == '<' */);
+}
+
 // parse end tag
-void parseEndTag(std::string_view& text){
+void parseEndTag(std::string_view& text) {
 
     assert(text.compare(0, "</"sv.size(), "</"sv) == 0);
     text.remove_prefix("</"sv.size());
