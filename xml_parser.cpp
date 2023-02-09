@@ -153,6 +153,12 @@ void parseXMLDeclaration(std::string_view& text) {
     text.remove_prefix(text.find_first_not_of(WHITESPACE));
 }
 
+// check if DOCTYPE
+bool isDOCTYPE(std::string_view& text) {
+    
+    return (text[1] == '!' && text[0] == '<' && text[2] == 'D' && text[3] == 'O' && text[4] == 'C' && text[5] == 'T' && text[6] == 'Y' && text[7] == 'P' && text[8] == 'E' && text[9] == ' ');
+}
+
 // parse DOCTYPE
 void parseDOCTYPE(std::string_view& text) {
 

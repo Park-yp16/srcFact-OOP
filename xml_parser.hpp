@@ -12,6 +12,16 @@
 // check if declaration
 bool isXMLDeclaration(std::string_view& text);
 
+// check if DOCTYPE
+bool isDOCTYPE(std::string_view& text);
+
+// check if declaration
+bool isXMLDeclaration(std::string_view& text);
+
+// check if declaration
+bool isXMLDeclaration(std::string_view& text);
+
+
 // parse XML declaration
 void parseXMLDeclaration(std::string_view& text);
 
