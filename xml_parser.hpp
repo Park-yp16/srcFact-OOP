@@ -70,6 +70,6 @@ void parseEndTag(std::string_view& text);
 void parseXMLNamespace(std::string_view& text);
 
 // parse attribute
-void parseAttribute(std::string_view& text, bool& inEscape, std::string& url);
+std::size_t parseAttribute(std::string_view& text);
  
 #endif

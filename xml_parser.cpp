@@ -294,7 +294,6 @@ void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes
     [[maybe_unused]] const std::string_view comment(text.substr(0, tagEndPosition));
     TRACE("COMMENT", "content", comment);
     text.remove_prefix(tagEndPosition);
-    text.remove_prefix("-->"sv.size());
 }
 
 // check if CDATA
@@ -322,9 +321,6 @@ std::string_view parseCDATA(std::string_view& text, bool& doneReading, long& tot
         }
     }
     const std::string_view characters(text.substr(0, tagEndPosition));
-    // TRACE("CDATA", "characters", characters);
-    // textSize += static_cast<int>(characters.size());
-    // loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
     text.remove_prefix(tagEndPosition);
     text.remove_prefix("]]>"sv.size());
 
@@ -454,7 +450,7 @@ void parseXMLNamespace(std::string_view& text) {
 }
 
 // parse attribute
-void parseAttribute(std::string_view& text, bool& inEscape, std::string& url) {
+std::size_t parseAttribute(std::string_view& text) {
     
     std::size_t nameEndPosition = text.find_first_of(NAMEEND);
     if (nameEndPosition == text.size()) {
@@ -492,18 +488,11 @@ void parseAttribute(std::string_view& text, bool& inEscape, std::string& url) {
         std::cerr << "parser error : attribute " << qName << " missing delimiter\n";
         exit(1);
     }
-    const std::string_view value(text.substr(0, valueEndPosition));
-    if (localName == "url"sv)
-        url = value;
-    TRACE("ATTRIBUTE", "qname", qName, "prefix", prefix, "localName", localName, "value", value)
-    // convert special srcML escaped element to characters
-    if (inEscape && localName == "char"sv /* && inUnit */) {
-        // use strtol() instead of atoi() since strtol() understands hex encoding of '0x0?'
-        [[maybe_unused]] char escapeValue = (char)strtol(value.data(), NULL, 0);
-    }
 
     text.remove_prefix(valueEndPosition);
     text.remove_prefix("\""sv.size());
     text.remove_prefix(text.find_first_not_of(WHITESPACE));
+
+    return valueEndPosition;
 }
 

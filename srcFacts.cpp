@@ -74,6 +74,7 @@ int main(int argc, char* argv[]) {
     // Start tracing document
     TRACE("START DOCUMENT");
 
+    // check for file input
     int bytesRead = refillContent(content);
     if (bytesRead < 0) {
         std::cerr << "parser error : File input error\n";
@@ -128,6 +129,7 @@ int main(int argc, char* argv[]) {
             
             // parse XML comment
             parseXMLComment(content, doneReading, totalBytes);
+            content.remove_prefix("-->"sv.size());
         } else if (isCDATA(content)) {
             
             // parse CDATA
@@ -200,7 +202,16 @@ int main(int argc, char* argv[]) {
                 } else {
                     
                     // parse attribute
-                    parseAttribute(content, inEscape, url);
+                    auto valueEndPosition = parseAttribute(content);
+                    const std::string_view value(content.substr(0, valueEndPosition));
+                    if (localName == "url"sv)
+                        url = value;
+                    TRACE("ATTRIBUTE", "qname", qName, "prefix", prefix, "localName", localName, "value", value)
+                    // convert special srcML escaped element to characters
+                    if (inEscape && localName == "char"sv /* && inUnit */) {
+                        // use strtol() instead of atoi() since strtol() understands hex encoding of '0x0?'
+                        [[maybe_unused]] char escapeValue = (char)strtol(value.data(), NULL, 0);
+                    }
                 }
             }
             if (content[0] == '>') {
@@ -220,33 +231,10 @@ int main(int argc, char* argv[]) {
     }
 
     content.remove_prefix(content.find_first_not_of(WHITESPACE) == content.npos ? content.size() : content.find_first_not_of(WHITESPACE));
-    while (!content.empty() && content[0] == '<' && content[1] == '!' && content[2] == '-' && content[3] == '-') {
+    while (!content.empty() && content[0] == '<' && isXMLComment(content)) {
         
         // parse XML comment
-        assert(content.compare(0, "<!--"sv.size(), "<!--"sv) == 0);
-        content.remove_prefix("<!--"sv.size());
-        std::size_t tagEndPosition = content.find("-->"sv);
-        if (tagEndPosition == content.npos) {
-        
-            // refill content preserving unprocessed
-            int bytesRead = refillContent(content);
-            if (bytesRead < 0) {
-                std::cerr << "parser error : File input error\n";
-                return 1;
-            }
-            if (bytesRead == 0) {
-                doneReading = true;
-            }
-            totalBytes += bytesRead;
-            tagEndPosition = content.find("-->"sv);
-            if (tagEndPosition == content.npos) {
-                std::cerr << "parser error : Unterminated XML comment\n";
-                return 1;
-            }
-        }
-        [[maybe_unused]] const std::string_view comment(content.substr(0, tagEndPosition));
-        TRACE("COMMENT", "content", comment);
-        content.remove_prefix(tagEndPosition);
+        parseXMLComment(content, doneReading, totalBytes);
         assert(content.compare(0, "-->"sv.size(), "-->"sv) == 0);
         content.remove_prefix("-->"sv.size());
         content.remove_prefix(content.find_first_not_of(WHITESPACE) == content.npos ? content.size() : content.find_first_not_of(WHITESPACE));
