@@ -70,6 +70,11 @@ int main(int argc, char* argv[]) {
     int returnCount = 0;
     long totalBytes = 0;
     std::string_view content;
+    int lineCommentCount = 0;
+    int literalCount = 0;
+    std::string_view qName;
+    [[maybe_unused]] std::string_view prefix;
+    std::string_view localName;
 
     // Start tracing document
     startTracing();
@@ -169,9 +174,6 @@ int main(int argc, char* argv[]) {
                 } else {
                     
                     // parse attribute
-                    std::string_view qName;
-                    [[maybe_unused]] std::string_view prefix;
-                    std::string_view localName;
                     auto valueEndPosition = parseAttribute(content);
                     const std::string_view value(content.substr(0, valueEndPosition));
                     if (localName == "url"sv)
@@ -181,6 +183,12 @@ int main(int argc, char* argv[]) {
                     if (inEscape && localName == "char"sv /* && inUnit */) {
                         // use strtol() instead of atoi() since strtol() understands hex encoding of '0x0?'
                         [[maybe_unused]] char escapeValue = (char)strtol(value.data(), NULL, 0);
+                    }
+                    if(localName == "comment"sv && value == "line"sv) {
+                        ++lineCommentCount;
+                    }
+                    if(localName == "literal"sv && value == "string"sv) {
+                        ++literalCount;
                     }
                     content.remove_prefix(valueEndPosition);
                     content.remove_prefix("\""sv.size());
@@ -229,17 +237,19 @@ int main(int argc, char* argv[]) {
     
     // output Report 
     std::cout << "# srcFacts: " << url << '\n';
-    std::cout << "| Measure      | " << std::setw(valueWidth + 3) << "Value |\n";
-    std::cout << "|:-------------|-" << std::setw(valueWidth + 3) << std::setfill('-') << ":|\n" << std::setfill(' ');
-    std::cout << "| Characters   | " << std::setw(valueWidth) << textSize      << " |\n";
-    std::cout << "| LOC          | " << std::setw(valueWidth) << loc           << " |\n";
-    std::cout << "| Files        | " << std::setw(valueWidth) << files         << " |\n";
-    std::cout << "| Classes      | " << std::setw(valueWidth) << classCount    << " |\n";
-    std::cout << "| Functions    | " << std::setw(valueWidth) << functionCount << " |\n";
-    std::cout << "| Declarations | " << std::setw(valueWidth) << declCount     << " |\n";
-    std::cout << "| Expressions  | " << std::setw(valueWidth) << exprCount     << " |\n";
-    std::cout << "| Comments     | " << std::setw(valueWidth) << commentCount  << " |\n";
-    std::cout << "| Returns      | " << std::setw(valueWidth) << returnCount   << " |\n";
+    std::cout << "| Measure       | " << std::setw(valueWidth + 3) << "Value |\n";
+    std::cout << "|:--------------|-" << std::setw(valueWidth + 3) << std::setfill('-') << ":|\n" << std::setfill(' ');
+    std::cout << "| Characters    | " << std::setw(valueWidth) << textSize         << " |\n";
+    std::cout << "| LOC           | " << std::setw(valueWidth) << loc              << " |\n";
+    std::cout << "| Files         | " << std::setw(valueWidth) << files            << " |\n";
+    std::cout << "| Classes       | " << std::setw(valueWidth) << classCount       << " |\n";
+    std::cout << "| Functions     | " << std::setw(valueWidth) << functionCount    << " |\n";
+    std::cout << "| Declarations  | " << std::setw(valueWidth) << declCount        << " |\n";
+    std::cout << "| Expressions   | " << std::setw(valueWidth) << exprCount        << " |\n";
+    std::cout << "| Comments      | " << std::setw(valueWidth) << commentCount     << " |\n";
+    std::cout << "| Returns       | " << std::setw(valueWidth) << returnCount      << " |\n";
+    std::cout << "| Line Comments | " << std::setw(valueWidth) << lineCommentCount << " |\n";
+    std::cout << "| Strings       | " << std::setw(valueWidth) << literalCount     << " |\n";
     std::clog.imbue(std::locale{""});
     std::clog.precision(3);
     std::clog << '\n';
