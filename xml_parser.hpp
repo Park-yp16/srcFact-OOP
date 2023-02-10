@@ -42,9 +42,6 @@ bool isXMLNamespace(std::string_view& text);
 // Start tracing document
 void startTracing();
 
-// End tracing document
-void EndTracing();
-
 // check for file input
 int checkFIleInput(std::string_view& text);
 
@@ -84,4 +81,7 @@ void parseXMLNamespace(std::string_view& text);
 // parse attribute
 std::size_t parseAttribute(std::string_view& text);
  
+// End tracing document
+void EndTracing();
+
 #endif

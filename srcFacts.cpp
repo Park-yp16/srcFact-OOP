@@ -108,13 +108,12 @@ int main(int argc, char* argv[]) {
             
             // parse character entity references
             parseCharEntityRefs(content);
-            TRACE("CHARACTERS", "characters", characters);
             ++textSize;
         } else if (isCharNonEntityRefs(content)) {
             
             // parse character non-entity references
             auto characters = parseCharNonEntityRefs(content);
-            // TRACE("CHARACTERS", "characters", characters);
+            TRACE("CHARACTERS", "characters", characters);
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
             textSize += static_cast<int>(characters.size());
             content.remove_prefix(characters.size());
@@ -145,11 +144,6 @@ int main(int argc, char* argv[]) {
         } else if (isStartTag(content)) {
             
             // parse start tag
-            // std::size_t nameEndPosition = text.find_first_of(NAMEEND);
-            // std::string_view qName;
-            // [[maybe_unused]] std::string_view prefix;
-            // std::string_view localName;
-
             auto localName = parseStartTag(content);
             bool inEscape = localName == "escape"sv;
             if (localName == "expr"sv) {
@@ -175,16 +169,22 @@ int main(int argc, char* argv[]) {
                 } else {
                     
                     // parse attribute
+                    std::string_view qName;
+                    [[maybe_unused]] std::string_view prefix;
+                    std::string_view localName;
                     auto valueEndPosition = parseAttribute(content);
                     const std::string_view value(content.substr(0, valueEndPosition));
                     if (localName == "url"sv)
                         url = value;
-                    TRACE("ATTRIBUTE", "qname", qName, "prefix", prefix, "localName", localName, "value", value)
+                    TRACE("ATTRIBUTE", "qname", qName, "prefix", prefix, "localName", localName, "value", value);
                     // convert special srcML escaped element to characters
                     if (inEscape && localName == "char"sv /* && inUnit */) {
                         // use strtol() instead of atoi() since strtol() understands hex encoding of '0x0?'
                         [[maybe_unused]] char escapeValue = (char)strtol(value.data(), NULL, 0);
                     }
+                    content.remove_prefix(valueEndPosition);
+                    content.remove_prefix("\""sv.size());
+                    content.remove_prefix(content.find_first_not_of(WHITESPACE));
                 }
             }
             if (content[0] == '>') {

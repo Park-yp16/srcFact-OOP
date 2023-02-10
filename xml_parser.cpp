@@ -272,7 +272,7 @@ std::string_view parseCharEntityRefs(std::string_view& text) {
     assert(text.compare(0, escapedCharacter.size(), escapedCharacter) == 0);
     text.remove_prefix(escapedCharacter.size());
     [[maybe_unused]] const std::string_view characters(unescapedCharacter);
-    // TRACE("CHARACTERS", "characters", characters);
+    TRACE("CHARACTERS", "characters", characters);
     return characters;
 }
 
@@ -518,9 +518,9 @@ std::size_t parseAttribute(std::string_view& text) {
         colonPosition = nameEndPosition;
         nameEndPosition = text.find_first_of(NAMEEND, nameEndPosition + 1);
     }
-    const std::string_view qName(text.substr(0, nameEndPosition));
-    [[maybe_unused]] const std::string_view prefix(qName.substr(0, colonPosition));
-    const std::string_view localName(qName.substr(colonPosition ? colonPosition + 1 : 0));
+    std::string_view qName(text.substr(0, nameEndPosition));
+    [[maybe_unused]] std::string_view prefix(qName.substr(0, colonPosition));
+    std::string_view localName(qName.substr(colonPosition ? colonPosition + 1 : 0));
     text.remove_prefix(nameEndPosition);
     text.remove_prefix(text.find_first_not_of(WHITESPACE));
     if (text.empty()) {
@@ -544,11 +544,8 @@ std::size_t parseAttribute(std::string_view& text) {
         std::cerr << "parser error : attribute " << qName << " missing delimiter\n";
         exit(1);
     }
+    // const std::string_view value(text.substr(0, valueEndPosition));
     // TRACE("ATTRIBUTE", "qname", qName, "prefix", prefix, "localName", localName, "value", value);
-
-    text.remove_prefix(valueEndPosition);
-    text.remove_prefix("\""sv.size());
-    text.remove_prefix(text.find_first_not_of(WHITESPACE));
     return valueEndPosition;
 }
 
