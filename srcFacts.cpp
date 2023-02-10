@@ -38,7 +38,7 @@ const int BLOCK_SIZE = 4096;
 const std::bitset<128> xmlNameMask("00000111111111111111111111111110100001111111111111111111111111100000001111111111011000000000000000000000000000000000000000000000");
 
 constexpr auto WHITESPACE = " \n\t\r"sv;
-constexpr auto NAMEEND = "> /\":=\n\t\r"sv;
+// constexpr auto NAMEEND = "> /\":=\n\t\r"sv;
 
 // trace parsing
 #ifdef TRACE
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     std::string_view content;
 
     // Start tracing document
-    TRACE("START DOCUMENT");
+    startTracing();
 
     // check for file input
     auto bytesRead = checkFIleInput(content);
@@ -108,12 +108,13 @@ int main(int argc, char* argv[]) {
             
             // parse character entity references
             parseCharEntityRefs(content);
+            TRACE("CHARACTERS", "characters", characters);
             ++textSize;
         } else if (isCharNonEntityRefs(content)) {
             
             // parse character non-entity references
             auto characters = parseCharNonEntityRefs(content);
-            TRACE("CHARACTERS", "characters", characters);
+            // TRACE("CHARACTERS", "characters", characters);
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
             textSize += static_cast<int>(characters.size());
             content.remove_prefix(characters.size());
@@ -144,6 +145,11 @@ int main(int argc, char* argv[]) {
         } else if (isStartTag(content)) {
             
             // parse start tag
+            // std::size_t nameEndPosition = text.find_first_of(NAMEEND);
+            // std::string_view qName;
+            // [[maybe_unused]] std::string_view prefix;
+            // std::string_view localName;
+
             auto localName = parseStartTag(content);
             bool inEscape = localName == "escape"sv;
             if (localName == "expr"sv) {
@@ -212,7 +218,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     // End tracing document
-    TRACE("END DOCUMENT");
+    EndTracing();
     
     const auto finishTime = std::chrono::steady_clock::now();
     const auto elapsedSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(finishTime - startTime).count();

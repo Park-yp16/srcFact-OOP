@@ -39,6 +39,12 @@ bool isStartTag(std::string_view& text);
 // check if namespace
 bool isXMLNamespace(std::string_view& text);
 
+// Start tracing document
+void startTracing();
+
+// End tracing document
+void EndTracing();
+
 // check for file input
 int checkFIleInput(std::string_view& text);
 
@@ -52,7 +58,7 @@ void parseDOCTYPE(std::string_view& text);
 int refillContentUnprocessed(std::string_view& text, bool& doneReading);
 
 // parse character entity references
-void parseCharEntityRefs(std::string_view& text);
+std::string_view parseCharEntityRefs(std::string_view& text);
 
 // parse character non-entity references
 const std::string_view parseCharNonEntityRefs(std::string_view& text);

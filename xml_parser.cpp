@@ -11,6 +11,8 @@
 #include <optional>
 #include <cassert>
 #include <algorithm>
+#include <iomanip>
+
 
 // provides literal string operator""sv
 using namespace std::literals::string_view_literals;
@@ -34,6 +36,12 @@ constexpr auto NAMEEND = "> /\":=\n\t\r"sv;
 #else
 #define TRACE(...)
 #endif
+
+// Start tracing document
+void startTracing() {
+
+    TRACE("START DOCUMENT");
+}
 
 // check for file input
 int checkFIleInput(std::string_view& text) {
@@ -244,7 +252,7 @@ bool isCharEntityRefs(std::string_view& text) {
 }
 
 // parse character entity references
-void parseCharEntityRefs(std::string_view& text) {
+std::string_view parseCharEntityRefs(std::string_view& text) {
     
     std::string_view unescapedCharacter;
     std::string_view escapedCharacter;
@@ -264,7 +272,8 @@ void parseCharEntityRefs(std::string_view& text) {
     assert(text.compare(0, escapedCharacter.size(), escapedCharacter) == 0);
     text.remove_prefix(escapedCharacter.size());
     [[maybe_unused]] const std::string_view characters(unescapedCharacter);
-    TRACE("CHARACTERS", "characters", characters);
+    // TRACE("CHARACTERS", "characters", characters);
+    return characters;
 }
 
 // check if character non-entity references
@@ -279,6 +288,7 @@ const std::string_view parseCharNonEntityRefs(std::string_view& text) {
     assert(text[0] != '<' && text[0] != '&');
     std::size_t characterEndPosition = text.find_first_of("<&");
     const std::string_view characters(text.substr(0, characterEndPosition));
+    TRACE("CHARACTERS", "characters", characters);
     return characters;
 }
 
@@ -534,11 +544,16 @@ std::size_t parseAttribute(std::string_view& text) {
         std::cerr << "parser error : attribute " << qName << " missing delimiter\n";
         exit(1);
     }
+    // TRACE("ATTRIBUTE", "qname", qName, "prefix", prefix, "localName", localName, "value", value);
 
     text.remove_prefix(valueEndPosition);
     text.remove_prefix("\""sv.size());
     text.remove_prefix(text.find_first_not_of(WHITESPACE));
-
     return valueEndPosition;
 }
 
+// End tracing document
+void EndTracing() {
+
+    TRACE("END DOCUMENT");
+}
