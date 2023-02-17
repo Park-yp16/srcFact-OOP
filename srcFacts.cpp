@@ -109,15 +109,15 @@ int main(int argc, char* argv[]) {
             totalBytes += bytesRead;
         }
 
-        if (isCharEntityRefs(content)) {
+        if (isCharacterEntityReferences(content)) {
             
             // parse character entity references
-            parseCharEntityRefs(content);
+            parseCharacterEntityReferences(content);
             ++textSize;
-        } else if (isCharNonEntityRefs(content)) {
+        } else if (isCharacterNonEntityReferences(content)) {
             
             // parse character non-entity references
-            auto characters = parseCharNonEntityRefs(content);
+            auto characters = parseCharacterNonEntityReferences(content);
             TRACE("CHARACTERS", "characters", characters);
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
             textSize += static_cast<int>(characters.size());

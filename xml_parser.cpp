@@ -246,13 +246,13 @@ int refillContentUnprocessed(std::string_view& text, bool& doneReading) {
 }
 
 // check if character entity references
-bool isCharEntityRefs(std::string_view& text) {
+bool isCharacterEntityReferences(std::string_view& text) {
     
     return (text[0] == '&');
 }
 
 // parse character entity references
-std::string_view parseCharEntityRefs(std::string_view& text) {
+std::string_view parseCharacterEntityReferences(std::string_view& text) {
     
     std::string_view unescapedCharacter;
     std::string_view escapedCharacter;
@@ -277,13 +277,13 @@ std::string_view parseCharEntityRefs(std::string_view& text) {
 }
 
 // check if character non-entity references
-bool isCharNonEntityRefs(std::string_view& text) {
+bool isCharacterNonEntityReferences(std::string_view& text) {
 
     return (text[0] != '<');
 }
 
 // parse character non-entity references
-const std::string_view parseCharNonEntityRefs(std::string_view& text) {
+const std::string_view parseCharacterNonEntityReferences(std::string_view& text) {
     
     assert(text[0] != '<' && text[0] != '&');
     std::size_t characterEndPosition = text.find_first_of("<&");

@@ -16,10 +16,10 @@ bool isXMLDeclaration(std::string_view& text);
 bool isDOCTYPE(std::string_view& text);
 
 // check if character entity references
-bool isCharEntityRefs(std::string_view& text);
+bool isCharacterEntityReferences(std::string_view& text);
 
 // check if character non-entity references
-bool isCharNonEntityRefs(std::string_view& text);
+bool isCharacterNonEntityReferences(std::string_view& text);
 
 // check if comment
 bool isXMLComment(std::string_view& text);
@@ -55,10 +55,10 @@ void parseDOCTYPE(std::string_view& text);
 int refillContentUnprocessed(std::string_view& text, bool& doneReading);
 
 // parse character entity references
-std::string_view parseCharEntityRefs(std::string_view& text);
+std::string_view parseCharacterEntityReferences(std::string_view& text);
 
 // parse character non-entity references
-const std::string_view parseCharNonEntityRefs(std::string_view& text);
+const std::string_view parseCharacterNonEntityReferences(std::string_view& text);
 
 // parse XML comment
 void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes);
