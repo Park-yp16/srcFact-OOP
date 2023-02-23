@@ -233,7 +233,7 @@ void parseDOCTYPE(std::string_view& text) {
 
 // refill content preserving unprocessed
 int refillContentUnprocessed(std::string_view& text, bool& doneReading) {
-       
+
     auto bytesRead = refillContent(text);
     if (bytesRead < 0) {
         std::cerr << "parser error : File input error\n";
@@ -247,13 +247,13 @@ int refillContentUnprocessed(std::string_view& text, bool& doneReading) {
 
 // check if character entity references
 bool isCharacterEntityReferences(std::string_view& text) {
-    
+
     return (text[0] == '&');
 }
 
 // parse character entity references
 std::string_view parseCharacterEntityReferences(std::string_view& text) {
-    
+
     std::string_view unescapedCharacter;
     std::string_view escapedCharacter;
     if (text[1] == 'l' && text[2] == 't' && text[3] == ';') {
@@ -284,7 +284,7 @@ bool isCharacterNonEntityReferences(std::string_view& text) {
 
 // parse character non-entity references
 const std::string_view parseCharacterNonEntityReferences(std::string_view& text) {
-    
+
     assert(text[0] != '<' && text[0] != '&');
     auto characterEndPosition = text.find_first_of("<&");
     const std::string_view characters(text.substr(0, characterEndPosition));
@@ -294,7 +294,7 @@ const std::string_view parseCharacterNonEntityReferences(std::string_view& text)
 
 // check if comment
 bool isXMLComment(std::string_view& text) {
-    
+
     return (text[1] == '!' /* && text[0] == '<' */ && text[2] == '-' && text[3] == '-');
 }
 
@@ -305,7 +305,7 @@ void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes
     text.remove_prefix("<!--"sv.size());
     auto tagEndPosition = text.find("-->"sv);
     if (tagEndPosition == text.npos) {
-        
+
         // refill content preserving unprocessed
         auto bytesRead = refillContentUnprocessed(text, doneReading);
         totalBytes += bytesRead;
@@ -329,11 +329,11 @@ bool isCDATA(std::string_view& text) {
 
 // parse CDATA
 std::string_view parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes) {
-    
+
     text.remove_prefix("<![Ctext["sv.size());
     auto tagEndPosition = text.find("]]>"sv);
     if (tagEndPosition == text.npos) {
-        
+
         // refill content preserving unprocessed
         auto bytesRead = refillContentUnprocessed(text, doneReading);
         totalBytes += bytesRead;
@@ -421,11 +421,13 @@ void parseEndTag(std::string_view& text) {
 
 // check if start tag
 bool isStartTag(std::string_view& text) {
+
     return (text[0] == '<');
 }
 
 // parse start tag
 std::string_view parseStartTag(std::string_view& text) {
+
     assert(text.compare(0, "<"sv.size(), "<"sv) == 0);
     text.remove_prefix("<"sv.size());
     if (text[0] == ':') {
@@ -472,7 +474,7 @@ void parseXMLNamespace(std::string_view& text) {
         std::cerr << "parser error : incomplete namespace\n";
         exit(1);
     }
-    auto prefixSize = 0;
+    std::size_t prefixSize = 0;
     if (text[0] == ':') {
         text.remove_prefix(":"sv.size());
         --nameEndPosition;
@@ -507,7 +509,7 @@ void parseXMLNamespace(std::string_view& text) {
 
 // parse attribute
 std::size_t parseAttribute(std::string_view& text) {
-    
+
     auto nameEndPosition = text.find_first_of(NAMEEND);
     if (nameEndPosition == text.size()) {
         std::cerr << "parser error : Empty attribute name" << '\n';

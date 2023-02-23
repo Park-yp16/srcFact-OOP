@@ -83,15 +83,15 @@ int main(int argc, char* argv[]) {
     auto bytesRead = checkFIleInput(content);
     totalBytes += bytesRead;
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    
+
     if (isXMLDeclaration(content)) {
-        
+
         // parse XML declaration
         parseXMLDeclaration(content);
     }
-    
+
     if (isDOCTYPE(content)) {
-        
+
         // parse DOCTYPE
         parseDOCTYPE(content);
     }
@@ -103,19 +103,19 @@ int main(int argc, char* argv[]) {
             if (content.empty())
                 break;
         } else if (content.size() < BLOCK_SIZE) {
-            
+
             // refill content preserving unprocessed
             refillContentUnprocessed(content, doneReading);
             totalBytes += bytesRead;
         }
 
         if (isCharacterEntityReferences(content)) {
-            
+
             // parse character entity references
             parseCharacterEntityReferences(content);
             ++textSize;
         } else if (isCharacterNonEntityReferences(content)) {
-            
+
             // parse character non-entity references
             auto characters = parseCharacterNonEntityReferences(content);
             TRACE("CHARACTERS", "characters", characters);
@@ -123,31 +123,31 @@ int main(int argc, char* argv[]) {
             textSize += static_cast<int>(characters.size());
             content.remove_prefix(characters.size());
         } else if (isXMLComment(content)) {
-            
+
             // parse XML comment
             parseXMLComment(content, doneReading, totalBytes);
             content.remove_prefix("-->"sv.size());
         } else if (isCDATA(content)) {
-            
+
             // parse CDATA
             auto characters = parseCDATA(content, doneReading, totalBytes);
             TRACE("CDATA", "characters", characters);
             textSize += static_cast<int>(characters.size());
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
-    
+
         } else if (isProcessingInstruction(content)) {
-            
+
             // parse processing instruction
             parseProcessingInstruction(content);
         } else if (isEndTag(content)) {
-            
+
             // parse end tag
             parseEndTag(content);
             --depth;
             if (depth == 0)
                 break;
         } else if (isStartTag(content)) {
-            
+
             // parse start tag
             auto localName = parseStartTag(content);
             bool inEscape = localName == "escape"sv;
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
                 ++commentCount;
             } else if (localName == "function"sv) {
                 ++functionCount;
-            } else if (localName == "unit"sv) { 
+            } else if (localName == "unit"sv) {
                 ++unitCount;
             } else if (localName == "class"sv) {
                 ++classCount;
@@ -168,11 +168,11 @@ int main(int argc, char* argv[]) {
             }
             while (xmlNameMask[content[0]]) {
                 if (isXMLNamespace(content)) {
-                    
+
                     // parse XML namespace
                     parseXMLNamespace(content);
                 } else {
-                    
+
                     // parse attribute
                     auto valueEndPosition = parseAttribute(content);
                     const std::string_view value(content.substr(0, valueEndPosition));
@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
 
     content.remove_prefix(content.find_first_not_of(WHITESPACE) == content.npos ? content.size() : content.find_first_not_of(WHITESPACE));
     while (!content.empty() && content[0] == '<' && isXMLComment(content)) {
-        
+
         // parse XML comment
         parseXMLComment(content, doneReading, totalBytes);
         assert(content.compare(0, "-->"sv.size(), "-->"sv) == 0);
@@ -227,15 +227,15 @@ int main(int argc, char* argv[]) {
     }
     // End tracing document
     EndTracing();
-    
+
     const auto finishTime = std::chrono::steady_clock::now();
     const auto elapsedSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(finishTime - startTime).count();
     const double MLOCPerSecond = loc / elapsedSeconds / 1000000;
     int files = std::max(unitCount - 1, 1);
     std::cout.imbue(std::locale{""});
     int valueWidth = std::max(5, static_cast<int>(log10(totalBytes) * 1.3 + 1));
-    
-    // output Report 
+
+    // output Report
     std::cout << "# srcFacts: " << url << '\n';
     std::cout << "| Measure       | " << std::setw(valueWidth + 3) << "Value |\n";
     std::cout << "|:--------------|-" << std::setw(valueWidth + 3) << std::setfill('-') << ":|\n" << std::setfill(' ');
@@ -256,6 +256,6 @@ int main(int argc, char* argv[]) {
     std::clog << totalBytes  << " bytes\n";
     std::clog << elapsedSeconds << " sec\n";
     std::clog << MLOCPerSecond << " MLOC/sec\n";
-    
+
     return 0;
 }

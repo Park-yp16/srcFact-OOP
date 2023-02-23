@@ -1,12 +1,12 @@
 /*
     refillContent.cpp
-    
+
     Implementation file for refillContent functions
 */
 
 #include "refillContent.hpp"
 #include <errno.h>
-#include <algorithm> 
+#include <algorithm>
 
 #if !defined(_MSC_VER)
 #include <sys/uio.h>

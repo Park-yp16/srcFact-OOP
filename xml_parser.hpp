@@ -80,7 +80,7 @@ void parseXMLNamespace(std::string_view& text);
 
 // parse attribute
 std::size_t parseAttribute(std::string_view& text);
- 
+
 // End tracing document
 void EndTracing();
 
