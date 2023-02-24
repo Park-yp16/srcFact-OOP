@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     startTracing();
 
     // check for file input
-    auto bytesRead = checkFIleInput(content);
+    const auto bytesRead = checkFIleInput(content);
     totalBytes += bytesRead;
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
 
@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
         } else if (isCharacterNonEntityReferences(content)) {
 
             // parse character non-entity references
-            auto characters = parseCharacterNonEntityReferences(content);
+            const auto characters = parseCharacterNonEntityReferences(content);
             TRACE("CHARACTERS", "characters", characters);
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
             textSize += static_cast<int>(characters.size());
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
         } else if (isCDATA(content)) {
 
             // parse CDATA
-            auto characters = parseCDATA(content, doneReading, totalBytes);
+            const auto characters = parseCDATA(content, doneReading, totalBytes);
             TRACE("CDATA", "characters", characters);
             textSize += static_cast<int>(characters.size());
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
@@ -149,7 +149,7 @@ int main(int argc, char* argv[]) {
         } else if (isStartTag(content)) {
 
             // parse start tag
-            auto localName = parseStartTag(content);
+            const auto localName = parseStartTag(content);
             bool inEscape = localName == "escape"sv;
             if (localName == "expr"sv) {
                 ++exprCount;
@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
                 } else {
 
                     // parse attribute
-                    auto valueEndPosition = parseAttribute(content);
+                    const auto valueEndPosition = parseAttribute(content);
                     const std::string_view value(content.substr(0, valueEndPosition));
                     if (localName == "url"sv)
                         url = value;

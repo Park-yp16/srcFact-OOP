@@ -46,7 +46,7 @@ void startTracing() {
 // check for file input
 int checkFIleInput(std::string_view& text) {
 
-    auto bytesRead = refillContent(text);
+    const auto bytesRead = refillContent(text);
     if (bytesRead < 0) {
         std::cerr << "parser error : File input error\n";
         return 1;
@@ -72,7 +72,7 @@ void parseXMLDeclaration(std::string_view& text) {
     text.remove_prefix(text.find_first_not_of(WHITESPACE));
 
     // parse required version
-    auto nameEndPosition = text.find_first_of("= ");
+    const auto nameEndPosition = text.find_first_of("= ");
     const std::string_view attr(text.substr(0, nameEndPosition));
     text.remove_prefix(nameEndPosition);
     text.remove_prefix(text.find_first_not_of(WHITESPACE));
@@ -84,7 +84,7 @@ void parseXMLDeclaration(std::string_view& text) {
         exit(1);
     }
     text.remove_prefix("\""sv.size());
-    auto valueEndPosition = text.find(delimiter);
+    const auto valueEndPosition = text.find(delimiter);
     if (valueEndPosition == text.npos) {
         std::cerr << "parser error: Invalid end delimiter for version in XML declaration\n";
         exit(1);
@@ -113,13 +113,13 @@ void parseXMLDeclaration(std::string_view& text) {
         assert(text.compare(0, "="sv.size(), "="sv) == 0);
         text.remove_prefix("="sv.size());
         text.remove_prefix(text.find_first_not_of(WHITESPACE));
-        auto delimiter2 = text[0];
+        const auto delimiter2 = text[0];
         if (delimiter2 != '"' && delimiter2 != '\'') {
             std::cerr << "parser error: Invalid end delimiter for attribute " << attr2 << " in XML declaration\n";
             exit(1);
         }
         text.remove_prefix("\""sv.size());
-        auto valueEndPosition = text.find(delimiter2);
+        const auto valueEndPosition = text.find(delimiter2);
         if (valueEndPosition == text.npos) {
             std::cerr << "parser error: Incomplete attribute " << attr2 << " in XML declaration\n";
             exit(1);
@@ -138,7 +138,7 @@ void parseXMLDeclaration(std::string_view& text) {
         text.remove_prefix(text.find_first_not_of(WHITESPACE));
     }
     if (text[0] != '?') {
-        auto nameEndPosition = text.find_first_of("= ");
+        const auto nameEndPosition = text.find_first_of("= ");
         if (nameEndPosition == text.npos) {
             std::cerr << "parser error: Incomplete attribute in XML declaration\n";
             exit(1);
@@ -154,7 +154,7 @@ void parseXMLDeclaration(std::string_view& text) {
             exit(1);
         }
         text.remove_prefix("\""sv.size());
-        auto valueEndPosition = text.find(delimiter2);
+        const auto valueEndPosition = text.find(delimiter2);
         if (valueEndPosition == text.npos) {
             std::cerr << "parser error: Incomplete attribute " << attr2 << " in XML declaration\n";
             exit(1);
@@ -234,7 +234,7 @@ void parseDOCTYPE(std::string_view& text) {
 // refill content preserving unprocessed
 int refillContentUnprocessed(std::string_view& text, bool& doneReading) {
 
-    auto bytesRead = refillContent(text);
+    const auto bytesRead = refillContent(text);
     if (bytesRead < 0) {
         std::cerr << "parser error : File input error\n";
         exit(1);
@@ -286,7 +286,7 @@ bool isCharacterNonEntityReferences(std::string_view& text) {
 const std::string_view parseCharacterNonEntityReferences(std::string_view& text) {
 
     assert(text[0] != '<' && text[0] != '&');
-    auto characterEndPosition = text.find_first_of("<&");
+    const auto characterEndPosition = text.find_first_of("<&");
     const std::string_view characters(text.substr(0, characterEndPosition));
     TRACE("CHARACTERS", "characters", characters);
     return characters;
@@ -307,7 +307,7 @@ void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes
     if (tagEndPosition == text.npos) {
 
         // refill content preserving unprocessed
-        auto bytesRead = refillContentUnprocessed(text, doneReading);
+        const auto bytesRead = refillContentUnprocessed(text, doneReading);
         totalBytes += bytesRead;
         tagEndPosition = text.find("-->"sv);
         if (tagEndPosition == text.npos) {
@@ -335,7 +335,7 @@ std::string_view parseCDATA(std::string_view& text, bool& doneReading, long& tot
     if (tagEndPosition == text.npos) {
 
         // refill content preserving unprocessed
-        auto bytesRead = refillContentUnprocessed(text, doneReading);
+        const auto bytesRead = refillContentUnprocessed(text, doneReading);
         totalBytes += bytesRead;
         tagEndPosition = text.find("-->"sv);
         tagEndPosition = text.find("]]>"sv);
@@ -362,12 +362,12 @@ void parseProcessingInstruction(std::string_view& text) {
 
     assert(text.compare(0, "<?"sv.size(), "<?"sv) == 0);
     text.remove_prefix("<?"sv.size());
-    auto tagEndPosition = text.find("?>"sv);
+    const auto tagEndPosition = text.find("?>"sv);
     if (tagEndPosition == text.npos) {
         std::cerr << "parser error: Incomplete XML declaration\n";
         exit(1);
     }
-    auto nameEndPosition = text.find_first_of(NAMEEND);
+    const auto nameEndPosition = text.find_first_of(NAMEEND);
     if (nameEndPosition == text.npos) {
         std::cerr << "parser error : Unterminated processing instruction\n";
         exit(1);
@@ -494,7 +494,7 @@ void parseXMLNamespace(std::string_view& text) {
         exit(1);
     }
     text.remove_prefix("\""sv.size());
-    auto valueEndPosition = text.find(delimiter);
+    const auto valueEndPosition = text.find(delimiter);
     if (valueEndPosition == text.npos) {
         std::cerr << "parser error : incomplete namespace\n";
         exit(1);
@@ -541,7 +541,7 @@ std::size_t parseAttribute(std::string_view& text) {
         exit(1);
     }
     text.remove_prefix("\""sv.size());
-    auto valueEndPosition = text.find(delimiter);
+    const auto valueEndPosition = text.find(delimiter);
     if (valueEndPosition == text.npos) {
         std::cerr << "parser error : attribute " << qName << " missing delimiter\n";
         exit(1);
