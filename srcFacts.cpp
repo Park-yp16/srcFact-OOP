@@ -77,23 +77,23 @@ int main(int argc, char* argv[]) {
     std::string_view localName;
 
     // Start tracing document
-    startTracing();
+    xml_parser::startTracing();
 
     // check for file input
-    const auto bytesRead = checkFIleInput(content);
+    const auto bytesRead = xml_parser::checkFIleInput(content);
     totalBytes += bytesRead;
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
 
-    if (isXMLDeclaration(content)) {
+    if (xml_parser::isXMLDeclaration(content)) {
 
         // parse XML declaration
-        parseXMLDeclaration(content);
+        xml_parser::parseXMLDeclaration(content);
     }
 
-    if (isDOCTYPE(content)) {
+    if (xml_parser::isDOCTYPE(content)) {
 
         // parse DOCTYPE
-        parseDOCTYPE(content);
+        xml_parser::parseDOCTYPE(content);
     }
 
     int depth = 0;
@@ -105,51 +105,51 @@ int main(int argc, char* argv[]) {
         } else if (content.size() < BLOCK_SIZE) {
 
             // refill content preserving unprocessed
-            refillContentUnprocessed(content, doneReading);
+            xml_parser::refillContentUnprocessed(content, doneReading);
             totalBytes += bytesRead;
         }
 
-        if (isCharacterEntityReferences(content)) {
+        if (xml_parser::isCharacterEntityReferences(content)) {
 
             // parse character entity references
-            parseCharacterEntityReferences(content);
+            xml_parser::parseCharacterEntityReferences(content);
             ++textSize;
-        } else if (isCharacterNonEntityReferences(content)) {
+        } else if (xml_parser::isCharacterNonEntityReferences(content)) {
 
             // parse character non-entity references
-            const auto characters = parseCharacterNonEntityReferences(content);
+            const auto characters = xml_parser::parseCharacterNonEntityReferences(content);
             TRACE("CHARACTERS", "characters", characters);
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
             textSize += static_cast<int>(characters.size());
             content.remove_prefix(characters.size());
-        } else if (isXMLComment(content)) {
+        } else if (xml_parser::isXMLComment(content)) {
 
             // parse XML comment
-            parseXMLComment(content, doneReading, totalBytes);
+            xml_parser::parseXMLComment(content, doneReading, totalBytes);
             content.remove_prefix("-->"sv.size());
-        } else if (isCDATA(content)) {
+        } else if (xml_parser::isCDATA(content)) {
 
             // parse CDATA
-            const auto characters = parseCDATA(content, doneReading, totalBytes);
+            const auto characters = xml_parser::parseCDATA(content, doneReading, totalBytes);
             TRACE("CDATA", "characters", characters);
             textSize += static_cast<int>(characters.size());
             loc += static_cast<int>(std::count(characters.cbegin(), characters.cend(), '\n'));
 
-        } else if (isProcessingInstruction(content)) {
+        } else if (xml_parser::isProcessingInstruction(content)) {
 
             // parse processing instruction
-            parseProcessingInstruction(content);
-        } else if (isEndTag(content)) {
+            xml_parser::parseProcessingInstruction(content);
+        } else if (xml_parser::isEndTag(content)) {
 
             // parse end tag
-            parseEndTag(content);
+            xml_parser::parseEndTag(content);
             --depth;
             if (depth == 0)
                 break;
-        } else if (isStartTag(content)) {
+        } else if (xml_parser::isStartTag(content)) {
 
             // parse start tag
-            const auto localName = parseStartTag(content);
+            const auto localName = xml_parser::parseStartTag(content);
             bool inEscape = localName == "escape"sv;
             if (localName == "expr"sv) {
                 ++exprCount;
@@ -167,14 +167,14 @@ int main(int argc, char* argv[]) {
                 ++returnCount;
             }
             while (xmlNameMask[content[0]]) {
-                if (isXMLNamespace(content)) {
+                if (xml_parser::isXMLNamespace(content)) {
 
                     // parse XML namespace
-                    parseXMLNamespace(content);
+                    xml_parser::parseXMLNamespace(content);
                 } else {
 
                     // parse attribute
-                    const auto valueEndPosition = parseAttribute(content);
+                    const auto valueEndPosition = xml_parser::parseAttribute(content);
                     const std::string_view value(content.substr(0, valueEndPosition));
                     if (localName == "url"sv)
                         url = value;
@@ -212,10 +212,10 @@ int main(int argc, char* argv[]) {
     }
 
     content.remove_prefix(content.find_first_not_of(WHITESPACE) == content.npos ? content.size() : content.find_first_not_of(WHITESPACE));
-    while (!content.empty() && content[0] == '<' && isXMLComment(content)) {
+    while (!content.empty() && content[0] == '<' && xml_parser::isXMLComment(content)) {
 
         // parse XML comment
-        parseXMLComment(content, doneReading, totalBytes);
+        xml_parser::parseXMLComment(content, doneReading, totalBytes);
         assert(content.compare(0, "-->"sv.size(), "-->"sv) == 0);
         content.remove_prefix("-->"sv.size());
         content.remove_prefix(content.find_first_not_of(WHITESPACE) == content.npos ? content.size() : content.find_first_not_of(WHITESPACE));
@@ -226,7 +226,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     // End tracing document
-    EndTracing();
+    xml_parser::EndTracing();
 
     const auto finishTime = std::chrono::steady_clock::now();
     const auto elapsedSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(finishTime - startTime).count();

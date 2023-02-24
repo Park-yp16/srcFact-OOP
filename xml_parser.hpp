@@ -9,6 +9,8 @@
 
 #include <string_view>
 
+namespace xml_parser {
+
 // check if declaration
 bool isXMLDeclaration(std::string_view& text);
 
@@ -58,7 +60,7 @@ int refillContentUnprocessed(std::string_view& text, bool& doneReading);
 std::string_view parseCharacterEntityReferences(std::string_view& text);
 
 // parse character non-entity references
-const std::string_view parseCharacterNonEntityReferences(std::string_view& text);
+std::string_view parseCharacterNonEntityReferences(std::string_view& text);
 
 // parse XML comment
 void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes);
@@ -83,5 +85,5 @@ std::size_t parseAttribute(std::string_view& text);
 
 // End tracing document
 void EndTracing();
-
+}
 #endif
