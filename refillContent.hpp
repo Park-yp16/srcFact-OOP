@@ -17,6 +17,6 @@
     @retval 0 EOF
     @retval -1 Read error
 */
-[[nodiscard]] int refillContent(std::string_view& data);
+[[nodiscard]] int refillContent(std::string_view& content);
 
 #endif

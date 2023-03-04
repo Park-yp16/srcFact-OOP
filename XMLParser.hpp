@@ -10,81 +10,100 @@
 #include <string_view>
 
 class XMLParser {
+    private: 
+
+    std::string_view content;
+    std::string_view qName;
+    std::string_view prefix;
+    std::string_view localName;
+    std::string_view characters;
+    long totalBytes = 0;
+    bool doneReading = false;
+
     public:
-    // check if declaration
-        bool isXMLDeclaration(std::string_view& text);
+        
+        //constructor
+        XMLParser(std::string_view& content, long totalBytes, bool doneReading);
+
+        // check if declaration
+        bool isXMLDeclaration();
         
         // check if DOCTYPE
-        bool isDOCTYPE(std::string_view& text);
+        bool isDOCTYPE();
         
         // check if character entity references
-        bool isCharacterEntityReferences(std::string_view& text);
+        bool isCharacterEntityReferences();
         
         // check if character non-entity references
-        bool isCharacterNonEntityReferences(std::string_view& text);
+        bool isCharacterNonEntityReferences();
         
         // check if comment
-        bool isXMLComment(std::string_view& text);
+        bool isXMLComment();
         
         // check if CDATA
-        bool isCDATA(std::string_view& text);
+        bool isCDATA();
         
         // check if processing instruction
-        bool isProcessingInstruction(std::string_view& text);
+        bool isProcessingInstruction();
         
         // check if end tag
-        bool isEndTag(std::string_view& text);
+        bool isEndTag();
         
         // check if start tag
-        bool isStartTag(std::string_view& text);
+        bool isStartTag();
         
         // check if namespace
-        bool isXMLNamespace(std::string_view& text);
+        bool isXMLNamespace();
         
         // Start tracing document
         void startTracing();
         
         // check for file input
-        int checkFIleInput(std::string_view& text);
+        void checkFIleInput();
         
         // parse XML declaration
-        void parseXMLDeclaration(std::string_view& text);
+        void parseXMLDeclaration();
         
         // parse DOCTYPE
-        void parseDOCTYPE(std::string_view& text);
+        void parseDOCTYPE();
         
         // refill content preserving unprocessed
-        int refillContentUnprocessed(std::string_view& text, bool& doneReading);
+        void refillContentUnprocessed();
         
         // parse character entity references
-        std::string_view parseCharacterEntityReferences(std::string_view& text);
+        std::string_view parseCharacterEntityReferences();
         
         // parse character non-entity references
-        std::string_view parseCharacterNonEntityReferences(std::string_view& text);
+        std::string_view parseCharacterNonEntityReferences();
         
         // parse XML comment
-        void parseXMLComment(std::string_view& text, bool& doneReading, long& totalBytes);
+        void parseXMLComment();
         
         // parse CDATA
-        std::string_view parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes);
+        std::string_view parseCDATA();
         
         // parse processing instruction
-        void parseProcessingInstruction(std::string_view& text);
+        void parseProcessingInstruction();
         
         // parse end tag
-        void parseEndTag(std::string_view& text);
+        void parseEndTag();
         
         // parse start tag
-        std::string_view parseStartTag(std::string_view& text);
+        std::string_view parseStartTag();
         
         // parse XML namespace
-        void parseXMLNamespace(std::string_view& text);
+        void parseXMLNamespace();
         
         // parse attribute
-        std::size_t parseAttribute(std::string_view& text);
+        std::size_t parseAttribute();
         
         // End tracing document
         void EndTracing();
+
+        long getTotalBytes();
+
+        bool getDoneReading();
+
 };
 
 #endif
