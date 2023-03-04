@@ -68,13 +68,14 @@ int main(int argc, char* argv[]) {
     int declCount = 0;
     int commentCount = 0;
     int returnCount = 0;
-    long totalBytes;
-    bool doneReading;
+    // long totalBytes = 0;
+    // bool doneReading = false;
     std::string_view content;
     int lineCommentCount = 0;
     int literalCount = 0;
 
-    XMLParser parser = XMLParser(content,totalBytes,doneReading);
+    // XMLParser parser = XMLParser(content,totalBytes,doneReading);
+    XMLParser parser = XMLParser(content);
 
     // Start tracing document
     parser.startTracing();

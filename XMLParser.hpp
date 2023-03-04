@@ -23,7 +23,14 @@ class XMLParser {
     public:
         
         //constructor
-        XMLParser(std::string_view& content, long totalBytes, bool doneReading);
+        XMLParser(std::string_view& content, std::string_view& qName, std::string_view& prefix, 
+                  std::string_view& localName, std::string_view& characters, long& totalBytes, bool& doneReading);
+
+        XMLParser(std::string_view& content, long& totalBytes, bool& doneReading);
+
+        XMLParser(std::string_view& content, bool& doneReading);
+
+        XMLParser(std::string_view& content);
 
         // check if declaration
         bool isXMLDeclaration();
