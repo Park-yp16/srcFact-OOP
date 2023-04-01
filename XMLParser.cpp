@@ -668,6 +668,7 @@ void XMLParser::parse() {
                 content.remove_prefix(">"sv.size());
                 ++depth;
             } else if (content[0] == '/' && content[1] == '>') {
+                std::string_view qName,prefix,localName;
                 assert(content.compare(0, "/>"sv.size(), "/>") == 0);
                 content.remove_prefix("/>"sv.size());
                 TRACE("END TAG", "qName", qName, "prefix", prefix, "localName", localName);

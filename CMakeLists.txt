@@ -115,3 +115,18 @@ add_custom_target(run_xmlstats
         USES_TERMINAL
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+# identity application
+add_executable(identity)
+
+# identity sources
+target_sources(identity PRIVATE identity.cpp refillContent.cpp XMLParser.cpp xml_parser.cpp)
+
+# identity run command
+add_custom_target(run_identity
+        COMMENT "Run identity"
+        COMMAND $<TARGET_FILE:identity> < ${DATA_DIR}/demo.xml > demoCopy.xml
+        DEPENDS identity
+        USES_TERMINAL
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
