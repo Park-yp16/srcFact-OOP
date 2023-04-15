@@ -41,22 +41,22 @@ constexpr auto NAMEEND = "> /\":=\n\t\r"sv;
 
 //constructor
 XMLParser::XMLParser(
-        std::function<void()> startHandler,
-        std::function<void(std::string_view version, std::optional<std::string_view> encoding, std::optional<std::string_view> standalone)> declarationHandler,
-        std::function<void()> DOCTYPEHandler, 
-        std::function<void(std::string_view qName, std::string_view prefix, std::string_view localName)> startTagHandler, 
-        std::function<void(std::string_view prefix, std::string_view qName, std::string_view localName)> endTagHandler,
-        std::function<void(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value)> attributeHandler,
-        std::function<void(std::string_view prefix, std::string_view uri)> namespaceHandler,
-        std::function<void(std::string_view comment)> commentHandler,
-        std::function<void(std::string_view characters)> CDATAHandler,
-        std::function<void(std::string_view target, std::string_view data)> processingInstructionHandler,
-        std::function<void(std::string_view characters)> characterEntityReferencesHandler,
-        std::function<void(std::string_view characters)> characterNonEntityReferencesHandler,
-        std::function<void()> endHandler) 
-    : startHandler(startHandler), declarationHandler(declarationHandler), DOCTYPEHandler(DOCTYPEHandler), startTagHandler(startTagHandler), endTagHandler(endTagHandler), 
-      attributeHandler(attributeHandler), namespaceHandler(namespaceHandler), commentHandler(commentHandler), CDATAHandler(CDATAHandler), processingInstructionHandler(processingInstructionHandler), 
-      characterEntityReferencesHandler(characterEntityReferencesHandler), characterNonEntityReferencesHandler(characterNonEntityReferencesHandler), endHandler(endHandler) {
+        std::function<void()> handleStartDocument,
+        std::function<void(std::string_view version, std::optional<std::string_view> encoding, std::optional<std::string_view> standalone)> handleDeclaration,
+        std::function<void()> handleDOCTYPE,
+        std::function<void(std::string_view qName, std::string_view prefix, std::string_view localName)> handleStartTag,
+        std::function<void(std::string_view prefix, std::string_view qName, std::string_view localName)> handleEndTag,
+        std::function<void(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value)> handleAttribute,
+        std::function<void(std::string_view prefix, std::string_view uri)> handleNamespace,
+        std::function<void(std::string_view comment)> handleComment,
+        std::function<void(std::string_view characters)> handleCDATA,
+        std::function<void(std::string_view target, std::string_view data)> handleProcessingInstruction,
+        std::function<void(std::string_view characters)> handleCharacterEntityReferences,
+        std::function<void(std::string_view characters)> handleCharacterNonEntityReferences,
+        std::function<void()> handleEndDocument)
+    : handleStartDocument(handleStartDocument), handleDeclaration(handleDeclaration), handleDOCTYPE(handleDOCTYPE), handleStartTag(handleStartTag), handleEndTag(handleEndTag),
+      handleAttribute(handleAttribute), handleNamespace(handleNamespace), handleComment(handleComment), handleCDATA(handleCDATA), handleProcessingInstruction(handleProcessingInstruction),
+      handleCharacterEntityReferences(handleCharacterEntityReferences), handleCharacterNonEntityReferences(handleCharacterNonEntityReferences), handleEndDocument(handleEndDocument) {
           totalBytes = 0;
           doneReading = false;
           depth = 0;
@@ -66,7 +66,7 @@ XMLParser::XMLParser(
 void XMLParser::startTracing() {
 
     TRACE("START DOCUMENT");
-    startHandler();
+    handleStartDocument();
 }
 
 // check for file input
@@ -201,7 +201,7 @@ void XMLParser::parseXMLDeclaration() {
     assert(content.compare(0, "?>"sv.size(), "?>"sv) == 0);
     content.remove_prefix("?>"sv.size());
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    declarationHandler(version, encoding, standalone);
+    handleDeclaration(version, encoding, standalone);
 }
 
 // check if DOCTYPE
@@ -257,7 +257,7 @@ void XMLParser::parseDOCTYPE() {
     assert(content[0] == '>');
     content.remove_prefix(">"sv.size());
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    DOCTYPEHandler();
+    handleDOCTYPE();
 }
 
 // refill content preserving unprocessed
@@ -302,7 +302,7 @@ void XMLParser::parseCharacterEntityReferences() {
     content.remove_prefix(escapedCharacter.size());
     [[maybe_unused]] const std::string_view characters(unescapedCharacter);
     TRACE("CHARACTERS", "characters", characters);
-    characterEntityReferencesHandler(characters);
+    handleCharacterEntityReferences(characters);
 }
 
 // check if character non-entity references
@@ -319,7 +319,7 @@ void XMLParser::parseCharacterNonEntityReferences() {
     const std::string_view characters(content.substr(0, characterEndPosition));
     TRACE("CHARACTERS", "characters", characters);
     content.remove_prefix(characters.size());
-    characterNonEntityReferencesHandler(characters);
+    handleCharacterNonEntityReferences(characters);
 }
 
 // check if comment
@@ -347,7 +347,7 @@ void XMLParser::parseXMLComment() {
     [[maybe_unused]] const std::string_view comment(content.substr(0, tagEndPosition));
     TRACE("COMMENT", "content", comment);
     content.remove_prefix(tagEndPosition);
-    commentHandler(comment);
+    handleComment(comment);
 }
 
 // check if CDATA
@@ -377,7 +377,7 @@ void XMLParser::parseCDATA() {
     TRACE("CDATA", "characters", characters);
     content.remove_prefix(tagEndPosition);
     content.remove_prefix("]]>"sv.size());
-    CDATAHandler(characters);
+    handleCDATA(characters);
 }
 
 // check if processing instruction
@@ -407,7 +407,7 @@ void XMLParser::parseProcessingInstruction() {
     content.remove_prefix(tagEndPosition);
     assert(content.compare(0, "?>"sv.size(), "?>"sv) == 0);
     content.remove_prefix("?>"sv.size());
-    processingInstructionHandler(target, data);
+    handleProcessingInstruction(target, data);
 }
 
 // check if end tag
@@ -447,7 +447,7 @@ void XMLParser::parseEndTag() {
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
     assert(content.compare(0, ">"sv.size(), ">"sv) == 0);
     content.remove_prefix(">"sv.size());
-    endTagHandler(qName, prefix, localName);
+    handleEndTag(qName, prefix, localName);
 }
 
 // check if start tag
@@ -486,7 +486,7 @@ void XMLParser::parseStartTag() {
     bool inEscape = localName == "escape"sv;
     content.remove_prefix(nameEndPosition);
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    startTagHandler(qName, prefix, localName);
+    handleStartTag(qName, prefix, localName);
 }
 
 // check if namespace
@@ -536,7 +536,7 @@ void XMLParser::parseXMLNamespace() {
     assert(content.compare(0, "\""sv.size(), "\""sv) == 0);
     content.remove_prefix("\""sv.size());
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    namespaceHandler(prefix, uri);
+    handleNamespace(prefix, uri);
 }
 
 // parse attribute
@@ -583,14 +583,14 @@ void XMLParser::parseAttribute() {
     content.remove_prefix(valueEndPosition);
     content.remove_prefix("\""sv.size());
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    attributeHandler(qName, prefix, localName, value);
+    handleAttribute(qName, prefix, localName, value);
 }
 
 // End tracing document
 void XMLParser::endTracing() {
 
     TRACE("END DOCUMENT");
-    endHandler();
+    handleEndDocument();
 }
 
 void XMLParser::parse() {

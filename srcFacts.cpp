@@ -127,7 +127,6 @@ int main(int argc, char* argv[]) {
 
     parser.parse();
 
-
     const auto finishTime = std::chrono::steady_clock::now();
     const auto elapsedSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(finishTime - startTime).count();
     const double MLOCPerSecond = loc / elapsedSeconds / 1000000;
