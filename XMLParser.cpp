@@ -39,28 +39,12 @@ constexpr auto NAMEEND = "> /\":=\n\t\r"sv;
 #define TRACE(...)
 #endif
 
-//constructor
-XMLParser::XMLParser(
-        std::function<void()> handleStartDocument,
-        std::function<void(std::string_view version, std::optional<std::string_view> encoding, std::optional<std::string_view> standalone)> handleDeclaration,
-        std::function<void()> handleDOCTYPE,
-        std::function<void(std::string_view qName, std::string_view prefix, std::string_view localName)> handleStartTag,
-        std::function<void(std::string_view prefix, std::string_view qName, std::string_view localName)> handleEndTag,
-        std::function<void(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value)> handleAttribute,
-        std::function<void(std::string_view prefix, std::string_view uri)> handleNamespace,
-        std::function<void(std::string_view comment)> handleComment,
-        std::function<void(std::string_view characters)> handleCDATA,
-        std::function<void(std::string_view target, std::string_view data)> handleProcessingInstruction,
-        std::function<void(std::string_view characters)> handleCharacterEntityReferences,
-        std::function<void(std::string_view characters)> handleCharacterNonEntityReferences,
-        std::function<void()> handleEndDocument)
-    : handleStartDocument(handleStartDocument), handleDeclaration(handleDeclaration), handleDOCTYPE(handleDOCTYPE), handleStartTag(handleStartTag), handleEndTag(handleEndTag),
-      handleAttribute(handleAttribute), handleNamespace(handleNamespace), handleComment(handleComment), handleCDATA(handleCDATA), handleProcessingInstruction(handleProcessingInstruction),
-      handleCharacterEntityReferences(handleCharacterEntityReferences), handleCharacterNonEntityReferences(handleCharacterNonEntityReferences), handleEndDocument(handleEndDocument) {
-          totalBytes = 0;
-          doneReading = false;
-          depth = 0;
-      }
+// constructor
+XMLParser::XMLParser() {
+   totalBytes = 0;
+   doneReading = false;
+   depth = 0; 
+}
 
 // Start tracing document
 void XMLParser::startTracing() {

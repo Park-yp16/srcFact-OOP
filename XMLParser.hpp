@@ -20,19 +20,31 @@ class XMLParser {
     bool doneReading;
     int depth;
 
-    std::function<void()> handleStartDocument;
-    std::function<void(std::string_view version, std::optional<std::string_view> encoding, std::optional<std::string_view> standalone)> handleDeclaration;
-    std::function<void()> handleDOCTYPE;
-    std::function<void(std::string_view qName, std::string_view prefix, std::string_view localName)> handleStartTag;
-    std::function<void(std::string_view prefix, std::string_view qName, std::string_view localName)> handleEndTag;
-    std::function<void(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value)> handleAttribute;
-    std::function<void(std::string_view prefix, std::string_view uri)> handleNamespace;
-    std::function<void(std::string_view comment)> handleComment;
-    std::function<void(std::string_view characters)> handleCDATA;
-    std::function<void(std::string_view target, std::string_view data)> handleProcessingInstruction;
-    std::function<void(std::string_view characters)> handleCharacterEntityReferences;
-    std::function<void(std::string_view characters)> handleCharacterNonEntityReferences;
-    std::function<void()> handleEndDocument;
+    virtual void handleStartDocument() {};
+
+    virtual void handleDeclaration(std::string_view version, std::optional<std::string_view> encoding, std::optional<std::string_view> standalone) {};
+
+    virtual void handleDOCTYPE() {};
+
+    virtual void handleStartTag(std::string_view qName, std::string_view prefix, std::string_view localName) {};
+
+    virtual void handleEndTag(std::string_view prefix, std::string_view qName, std::string_view localName) {};
+
+    virtual void handleAttribute(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value) {};
+
+    virtual void handleNamespace(std::string_view prefix, std::string_view uri) {};
+
+    virtual void handleComment(std::string_view comment) {};
+
+    virtual void handleCDATA(std::string_view characters) {};
+
+    virtual void handleProcessingInstruction(std::string_view target, std::string_view data) {};
+
+    virtual void handleCharacterEntityReferences(std::string_view characters) {};
+
+    virtual void handleCharacterNonEntityReferences(std::string_view characters) {};
+
+    virtual void handleEndDocument() {};
 
     // check if declaration
     bool isXMLDeclaration();
@@ -111,23 +123,11 @@ class XMLParser {
 
     public:
 
-    //constructor
-    XMLParser(
-        std::function<void()> handleStartDocument,
-        std::function<void(std::string_view version, std::optional<std::string_view> encoding, std::optional<std::string_view> standalone)> handleDeclaration,
-        std::function<void()> handleDOCTYPE,
-        std::function<void(std::string_view qName, std::string_view prefix, std::string_view localName)> handleStartTag,
-        std::function<void(std::string_view prefix, std::string_view qName, std::string_view localName)> handleEndTag,
-        std::function<void(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value)> handleAttribute,
-        std::function<void(std::string_view prefix, std::string_view uri)> handlenamespace,
-        std::function<void(std::string_view comment)> handleComment,
-        std::function<void(std::string_view characters)> handleCDATA,
-        std::function<void(std::string_view target, std::string_view data)> handleProcessingInstruction,
-        std::function<void(std::string_view characters)> handleCharacterEntityReferences,
-        std::function<void(std::string_view characters)> handleCharacterNonEntityReferences,
-        std::function<void()> handleEndDocument
-    );
+    // constructor
+    XMLParser();
 
+    virtual ~XMLParser() = default;
+    
     long getTotalBytes();
 
     void parse();
