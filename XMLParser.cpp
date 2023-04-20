@@ -40,17 +40,18 @@ constexpr auto NAMEEND = "> /\":=\n\t\r"sv;
 #endif
 
 // constructor
-XMLParser::XMLParser() {
+XMLParser::XMLParser(XMLParserHandler& handler)
+   : handler(handler) {
    totalBytes = 0;
    doneReading = false;
-   depth = 0; 
+   depth = 0;
 }
 
 // Start tracing document
 void XMLParser::startTracing() {
 
     TRACE("START DOCUMENT");
-    handleStartDocument();
+    handler.handleStartDocument();
 }
 
 // check for file input
@@ -185,7 +186,7 @@ void XMLParser::parseXMLDeclaration() {
     assert(content.compare(0, "?>"sv.size(), "?>"sv) == 0);
     content.remove_prefix("?>"sv.size());
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    handleDeclaration(version, encoding, standalone);
+    handler.handleDeclaration(version, encoding, standalone);
 }
 
 // check if DOCTYPE
@@ -241,7 +242,7 @@ void XMLParser::parseDOCTYPE() {
     assert(content[0] == '>');
     content.remove_prefix(">"sv.size());
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    handleDOCTYPE();
+    handler.handleDOCTYPE();
 }
 
 // refill content preserving unprocessed
@@ -286,7 +287,7 @@ void XMLParser::parseCharacterEntityReferences() {
     content.remove_prefix(escapedCharacter.size());
     [[maybe_unused]] const std::string_view characters(unescapedCharacter);
     TRACE("CHARACTERS", "characters", characters);
-    handleCharacterEntityReferences(characters);
+    handler.handleCharacterEntityReferences(characters);
 }
 
 // check if character non-entity references
@@ -303,7 +304,7 @@ void XMLParser::parseCharacterNonEntityReferences() {
     const std::string_view characters(content.substr(0, characterEndPosition));
     TRACE("CHARACTERS", "characters", characters);
     content.remove_prefix(characters.size());
-    handleCharacterNonEntityReferences(characters);
+    handler.handleCharacterNonEntityReferences(characters);
 }
 
 // check if comment
@@ -331,7 +332,7 @@ void XMLParser::parseXMLComment() {
     [[maybe_unused]] const std::string_view comment(content.substr(0, tagEndPosition));
     TRACE("COMMENT", "content", comment);
     content.remove_prefix(tagEndPosition);
-    handleComment(comment);
+    handler.handleComment(comment);
 }
 
 // check if CDATA
@@ -361,7 +362,7 @@ void XMLParser::parseCDATA() {
     TRACE("CDATA", "characters", characters);
     content.remove_prefix(tagEndPosition);
     content.remove_prefix("]]>"sv.size());
-    handleCDATA(characters);
+    handler.handleCDATA(characters);
 }
 
 // check if processing instruction
@@ -391,7 +392,7 @@ void XMLParser::parseProcessingInstruction() {
     content.remove_prefix(tagEndPosition);
     assert(content.compare(0, "?>"sv.size(), "?>"sv) == 0);
     content.remove_prefix("?>"sv.size());
-    handleProcessingInstruction(target, data);
+    handler.handleProcessingInstruction(target, data);
 }
 
 // check if end tag
@@ -431,7 +432,7 @@ void XMLParser::parseEndTag() {
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
     assert(content.compare(0, ">"sv.size(), ">"sv) == 0);
     content.remove_prefix(">"sv.size());
-    handleEndTag(qName, prefix, localName);
+    handler.handleEndTag(qName, prefix, localName);
 }
 
 // check if start tag
@@ -470,7 +471,7 @@ void XMLParser::parseStartTag() {
     bool inEscape = localName == "escape"sv;
     content.remove_prefix(nameEndPosition);
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    handleStartTag(qName, prefix, localName);
+    handler.handleStartTag(qName, prefix, localName);
 }
 
 // check if namespace
@@ -520,7 +521,7 @@ void XMLParser::parseXMLNamespace() {
     assert(content.compare(0, "\""sv.size(), "\""sv) == 0);
     content.remove_prefix("\""sv.size());
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    handleNamespace(prefix, uri);
+    handler.handleNamespace(prefix, uri);
 }
 
 // parse attribute
@@ -567,14 +568,14 @@ void XMLParser::parseAttribute() {
     content.remove_prefix(valueEndPosition);
     content.remove_prefix("\""sv.size());
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
-    handleAttribute(qName, prefix, localName, value);
+    handler.handleAttribute(qName, prefix, localName, value);
 }
 
 // End tracing document
 void XMLParser::endTracing() {
 
     TRACE("END DOCUMENT");
-    handleEndDocument();
+    handler.handleEndDocument();
 }
 
 void XMLParser::parse() {

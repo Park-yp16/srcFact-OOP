@@ -8,9 +8,9 @@
 #ifndef INCLUDED_XMLSTATSPARSER_HPP
 #define INCLUDED_XMLSTATSPARSER_HPP
 
-#include "XMLParser.hpp"
+#include "XMLParserHandler.hpp"
 
-class XMLStatsParser : public XMLParser {
+class XMLStatsParser : public XMLParserHandler {
 
     private:
     
@@ -37,7 +37,7 @@ class XMLStatsParser : public XMLParser {
 
     void handleStartTag(std::string_view qName, std::string_view prefix, std::string_view localName) override;
 
-    void handleEndTag(std::string_view prefix, std::string_view qName, std::string_view localName) override;
+    void handleEndTag(std::string_view qName, std::string_view prefix, std::string_view localName) override;
 
     void handleAttribute(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value) override;
 
@@ -55,8 +55,9 @@ class XMLStatsParser : public XMLParser {
 
     void handleEndDocument() override;
 
-
     public:
+
+    XMLStatsParser();
 
     // Get method for startDocCount
     int getStartDocCount();

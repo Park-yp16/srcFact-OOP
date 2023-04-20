@@ -10,6 +10,8 @@
 #include <cmath>
 #include "XMLStatsParser.hpp"
 
+XMLStatsParser::XMLStatsParser() {}
+
 void XMLStatsParser::handleStartDocument() {
 
     ++startDocCount;
@@ -30,7 +32,7 @@ void XMLStatsParser::handleStartTag(std::string_view qName, std::string_view pre
     ++startTagCount;
 }
 
-void XMLStatsParser::handleEndTag(std::string_view prefix, std::string_view qName, std::string_view localName) {
+void XMLStatsParser::handleEndTag(std::string_view qName, std::string_view prefix, std::string_view localName) {
 
     ++endTagCount;
 }

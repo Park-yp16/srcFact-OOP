@@ -17,6 +17,8 @@
 
 using namespace std::literals::string_view_literals;
 
+identityParser::identityParser() {}
+
 void identityParser::handleStartDocument() {}
 
 void identityParser::handleDeclaration(std::string_view version, std::optional<std::string_view> encoding, std::optional<std::string_view> standalone) {
@@ -31,7 +33,7 @@ void identityParser::handleStartTag(std::string_view qName, std::string_view pre
     std::cout << "<" << qName << ">";
 }
 
-void identityParser::handleEndTag(std::string_view prefix, std::string_view qName, std::string_view localName) {
+void identityParser::handleEndTag(std::string_view qName, std::string_view prefix, std::string_view localName) {
 
     std::cout << "</" << qName << ">";
 }
@@ -103,6 +105,6 @@ void identityParser::handleCharacterNonEntityReferences(std::string_view charact
 
 void identityParser::handleEndDocument() {
 
-    std::cout << "\n";
+    // std::cout << "\n";
     // std::cout.close();
 }

@@ -18,7 +18,8 @@
 
 int main(int argc, char* argv[]) {
 
-    identityParser parser;
+    identityParser handler;
+    XMLParser parser(handler);
     
     parser.parse();
 

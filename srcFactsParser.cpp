@@ -5,10 +5,12 @@
 */
 
 #include "srcFactsParser.hpp"
-#include "XMLParser.hpp"
+#include <algorithm>
 
 // provides literal string operator""sv
 using namespace std::literals::string_view_literals;
+
+srcFactsParser::srcFactsParser() {}
 
 void srcFactsParser::handleStartDocument() {}
 
@@ -35,7 +37,7 @@ void srcFactsParser::handleStartTag(std::string_view qName, std::string_view pre
     }
 }
 
-void srcFactsParser::handleEndTag(std::string_view prefix, std::string_view qName, std::string_view localName) {}
+void srcFactsParser::handleEndTag(std::string_view qName, std::string_view prefix, std::string_view localName) {}
 
 void srcFactsParser::handleAttribute(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value) {
 

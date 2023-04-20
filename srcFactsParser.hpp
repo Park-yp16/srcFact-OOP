@@ -7,11 +7,11 @@
 #ifndef INCLUDED_SRCFACTSPARSER_HPP
 #define INCLUDED_SRCFACTSPARSER_HPP
 
-#include "XMLParser.hpp"
+#include "XMLParserHandler.hpp"
 
 #include <string>
 
-class srcFactsParser : public XMLParser {
+class srcFactsParser : public XMLParserHandler {
 
     private:
     
@@ -37,7 +37,7 @@ class srcFactsParser : public XMLParser {
 
     void handleStartTag(std::string_view qName, std::string_view prefix, std::string_view localName) override;
 
-    void handleEndTag(std::string_view prefix, std::string_view qName, std::string_view localName) override;
+    void handleEndTag(std::string_view qName, std::string_view prefix, std::string_view localName) override;
 
     void handleAttribute(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value) override;
 
@@ -56,6 +56,8 @@ class srcFactsParser : public XMLParser {
     void handleEndDocument() override;
 
     public:
+
+    srcFactsParser();
 
     // Get method for URL
     std::string getURL();

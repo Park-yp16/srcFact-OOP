@@ -12,7 +12,7 @@
 
 #include "XMLParser.hpp"
 
-class identityParser : public XMLParser {
+class identityParser : public XMLParserHandler {
 
     private:
 
@@ -25,7 +25,7 @@ class identityParser : public XMLParser {
 
     void handleStartTag(std::string_view qName, std::string_view prefix, std::string_view localName) override;
 
-    void handleEndTag(std::string_view prefix, std::string_view qName, std::string_view localName) override;
+    void handleEndTag(std::string_view qName, std::string_view prefix, std::string_view localName) override;
 
     void handleAttribute(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value) override;
 
@@ -42,6 +42,10 @@ class identityParser : public XMLParser {
     void handleCharacterNonEntityReferences(std::string_view characters) override;
 
     void handleEndDocument() override;
+
+    public:
+
+    identityParser();
 
 };
 
