@@ -51,3 +51,55 @@ C++ 기반의 객체지향 정적 분석 도구로, `srcML` 형태로 변환된 
 | **UML 기반 설계** | 시퀀스 다이어그램, 클래스 다이어그램 기반 설계 문서 작성 |
 
 ---
+
+
+# 빌드 (Build)
+
+## 설정 (Setup)
+
+먼저 빌드 디렉토리를 만들고 해당 디렉토리로 이동합니다:
+
+```console
+mkdir build
+cd build
+```
+
+그 다음, 빌드 디렉토리 안에서 cmake를 실행하여 상위 소스 디렉토리를 지정합니다:
+
+```console
+cmake ..
+```
+
+소스 디렉토리를 지정하여 cmake를 실행하는 것은 처음 한 번만 필요합니다.
+이후부터는 빌드 디렉토리 안에서 바로 cmake를 실행할 수 있습니다:
+
+```console
+cmake .
+```
+
+
+이제 빌드를 수행합니다:
+
+```console
+make
+```
+
+## 데모 실행 (Run Demo)
+
+예시 입력 파일이 함께 제공됩니다. 다음 명령어로 실행할 수 있습니다:
+
+```console
+make run
+```
+
+또는 커맨드라인에서 직접 실행하려면:
+
+```console
+./srcfacts < data/demo.xml
+```
+
+실행 시간을 측정하고 싶다면:
+
+```console
+time ./srcfacts < data/demo.xml
+```
