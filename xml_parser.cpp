@@ -44,18 +44,19 @@ void xml_parser::startTracing() {
 }
 
 // check for file input
-int xml_parser::checkFIleInput(std::string_view& text) {
+void xml_parser::checkFIleInput(std::string_view& text, long& totalBytes) {
 
     int bytesRead = refillContent(text);
     if (bytesRead < 0) {
         std::cerr << "parser error : File input error\n";
-        return 1;
+        exit(1);
     }
     if (bytesRead == 0) {
         std::cerr << "parser error : Empty file\n";
-        return 1;
+        exit(1);
     }
-    return bytesRead;
+    totalBytes += bytesRead;
+    text.remove_prefix(text.find_first_not_of(WHITESPACE));
 }
 
 // check if declaration
@@ -232,7 +233,7 @@ void xml_parser::parseDOCTYPE(std::string_view& text) {
 }
 
 // refill content preserving unprocessed
-int xml_parser::refillContentUnprocessed(std::string_view& text, bool& doneReading) {
+void xml_parser::refillContentUnprocessed(std::string_view& text, bool& doneReading, long& totalBytes) {
        
     int bytesRead = refillContent(text);
     if (bytesRead < 0) {
@@ -242,7 +243,7 @@ int xml_parser::refillContentUnprocessed(std::string_view& text, bool& doneReadi
     if (bytesRead == 0) {
         doneReading = true;
     }
-     return bytesRead;
+    totalBytes += bytesRead;
 }
 
 // check if character entity references
@@ -252,7 +253,7 @@ bool xml_parser::isCharacterEntityReferences(std::string_view& text) {
 }
 
 // parse character entity references
-std::string_view xml_parser::parseCharacterEntityReferences(std::string_view& text) {
+void xml_parser::parseCharacterEntityReferences(std::string_view& text) {
     
     std::string_view unescapedCharacter;
     std::string_view escapedCharacter;
@@ -273,7 +274,6 @@ std::string_view xml_parser::parseCharacterEntityReferences(std::string_view& te
     text.remove_prefix(escapedCharacter.size());
     [[maybe_unused]] const std::string_view characters(unescapedCharacter);
     TRACE("CHARACTERS", "characters", characters);
-    return characters;
 }
 
 // check if character non-entity references
@@ -283,13 +283,13 @@ bool xml_parser::isCharacterNonEntityReferences(std::string_view& text) {
 }
 
 // parse character non-entity references
-std::string_view xml_parser::parseCharacterNonEntityReferences(std::string_view& text) {
+void xml_parser::parseCharacterNonEntityReferences(std::string_view& text) {
     
     assert(text[0] != '<' && text[0] != '&');
     std::size_t characterEndPosition = text.find_first_of("<&");
     const std::string_view characters(text.substr(0, characterEndPosition));
     TRACE("CHARACTERS", "characters", characters);
-    return characters;
+    text.remove_prefix(characters.size());
 }
 
 // check if comment
@@ -307,8 +307,7 @@ void xml_parser::parseXMLComment(std::string_view& text, bool& doneReading, long
     if (tagEndPosition == text.npos) {
         
         // refill content preserving unprocessed
-        int bytesRead = refillContentUnprocessed(text, doneReading);
-        totalBytes += bytesRead;
+        refillContentUnprocessed(text, doneReading, totalBytes);
         tagEndPosition = text.find("-->"sv);
         if (tagEndPosition == text.npos) {
             std::cerr << "parser error : Unterminated XML comment\n";
@@ -328,15 +327,14 @@ bool xml_parser::isCDATA(std::string_view& text) {
 }
 
 // parse CDATA
-std::string_view xml_parser::parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes) {
+void xml_parser::parseCDATA(std::string_view& text, bool& doneReading, long& totalBytes) {
     
     text.remove_prefix("<![Ctext["sv.size());
     std::size_t tagEndPosition = text.find("]]>"sv);
     if (tagEndPosition == text.npos) {
         
         // refill content preserving unprocessed
-        int bytesRead = refillContentUnprocessed(text, doneReading);
-        totalBytes += bytesRead;
+        refillContentUnprocessed(text, doneReading, totalBytes);
         tagEndPosition = text.find("-->"sv);
         tagEndPosition = text.find("]]>"sv);
         if (tagEndPosition == text.npos) {
@@ -345,10 +343,9 @@ std::string_view xml_parser::parseCDATA(std::string_view& text, bool& doneReadin
         }
     }
     const std::string_view characters(text.substr(0, tagEndPosition));
+    TRACE("CDATA", "characters", characters);
     text.remove_prefix(tagEndPosition);
     text.remove_prefix("]]>"sv.size());
-
-    return characters;
 }
 
 // check if processing instruction
@@ -425,7 +422,7 @@ bool xml_parser::isStartTag(std::string_view& text) {
 }
 
 // parse start tag
-std::string_view xml_parser::parseStartTag(std::string_view& text) {
+void xml_parser::parseStartTag(std::string_view& text) {
     assert(text.compare(0, "<"sv.size(), "<"sv) == 0);
     text.remove_prefix("<"sv.size());
     if (text[0] == ':') {
@@ -452,8 +449,6 @@ std::string_view xml_parser::parseStartTag(std::string_view& text) {
     TRACE("START TAG", "qName", qName, "prefix", prefix, "localName", localName);
     text.remove_prefix(nameEndPosition);
     text.remove_prefix(text.find_first_not_of(WHITESPACE));
-
-    return localName;
 }
 
 // check if namespace
@@ -506,7 +501,7 @@ void xml_parser::parseXMLNamespace(std::string_view& text) {
 }
 
 // parse attribute
-std::size_t xml_parser::parseAttribute(std::string_view& text) {
+void xml_parser::parseAttribute(std::string_view& text) {
     
     std::size_t nameEndPosition = text.find_first_of(NAMEEND);
     if (nameEndPosition == text.size()) {
@@ -544,9 +539,11 @@ std::size_t xml_parser::parseAttribute(std::string_view& text) {
         std::cerr << "parser error : attribute " << qName << " missing delimiter\n";
         exit(1);
     }
-    // const std::string_view value(text.substr(0, valueEndPosition));
-    // TRACE("ATTRIBUTE", "qname", qName, "prefix", prefix, "localName", localName, "value", value);
-    return valueEndPosition;
+    const std::string_view value(text.substr(0, valueEndPosition));
+    TRACE("ATTRIBUTE", "qname", qName, "prefix", prefix, "localName", localName, "value", value);
+    text.remove_prefix(valueEndPosition);
+    text.remove_prefix("\""sv.size());
+    text.remove_prefix(text.find_first_not_of(WHITESPACE));
 }
 
 // End tracing document
