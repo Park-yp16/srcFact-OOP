@@ -13,6 +13,9 @@
 class XMLParserHandler {
     public:
 
+    // [FIX] 다형성 base class에 가상 소멸자 추가 (없으면 파생 클래스 소멸 시 미정의 동작 발생)
+    virtual ~XMLParserHandler() = default;
+
     virtual void handleStartDocument() {};
 
     virtual void handleDeclaration(std::string_view version, std::optional<std::string_view> encoding, std::optional<std::string_view> standalone) {};

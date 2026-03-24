@@ -12,6 +12,7 @@
 #include "XMLParser.hpp"
 #include "XMLStatsParser.hpp"
 
+// [FIX] Merge conflict 해결: HEAD 브랜치의 빈 main()을 main 브랜치의 완성된 버전으로 교체
 int main(int argc, char* argv[]) {
 
     XMLStatsParser handler;
@@ -39,5 +40,6 @@ int main(int argc, char* argv[]) {
     std::cout << "| nonCER                 | " << std::setw(valueWidth) << handler.getNonCERCount()           << " |\n";
     std::cout << "| End Document           | " << std::setw(valueWidth) << handler.getEndDocCount()           << " |\n";
     std::cout << "\n";
+
     return 0;
 }

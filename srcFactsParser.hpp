@@ -59,41 +59,42 @@ class srcFactsParser : public XMLParserHandler {
 
     srcFactsParser();
 
+    // [FIX] 모든 getter에 const 추가: 내부 상태를 변경하지 않는 함수는 const로 선언해야 함
     // Get method for URL
-    std::string getURL();
+    std::string getURL() const;
 
     // Get method for textsize
-    int getTextsize();
+    int getTextsize() const;
 
     // Get method for LOC
-    int getLOC();
+    int getLOC() const;
 
     // Get method for exprCount
-    int getExprCount();
+    int getExprCount() const;
 
     // Get method for functionCount
-    int getFunctionCount();
+    int getFunctionCount() const;
 
     // Get method for classCount
-    int getClassCount();
+    int getClassCount() const;
 
     // Get method for unitCount
-    int getUnitCount();
+    int getUnitCount() const;
 
     // Get method for declCount
-    int getDeclCount();
+    int getDeclCount() const;
 
     // Get method for commentCount
-    int getCommentCount();
+    int getCommentCount() const;
 
     // Get method for returnCount
-    int getReturnCount();
+    int getReturnCount() const;
 
     // Get method for lineCommentCount
-    int getLineCommentCount();
+    int getLineCommentCount() const;
 
     // Get method for literalCount
-    int getLiteralCount();
+    int getLiteralCount() const;
 };
 
 #endif

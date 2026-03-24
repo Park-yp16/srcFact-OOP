@@ -11,21 +11,14 @@
     * No checking for well-formedness
 */
 
+// [FIX] 사용하지 않는 헤더 제거: <iterator>, <sys/types.h>, <string_view>, <optional>,
+//       <algorithm>, <memory>, <stdlib.h>, <bitset>, <cassert>
 #include <iostream>
 #include <locale>
-#include <iterator>
 #include <string>
-#include <sys/types.h>
-#include <string_view>
-#include <optional>
 #include <iomanip>
 #include <cmath>
-#include <algorithm>
 #include <chrono>
-#include <memory>
-#include <stdlib.h>
-#include <bitset>
-#include <cassert>
 
 #include "refillContent.hpp"
 #include "XMLParser.hpp"

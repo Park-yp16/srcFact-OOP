@@ -41,18 +41,14 @@ void srcFactsParser::handleEndTag(std::string_view qName, std::string_view prefi
 
 void srcFactsParser::handleAttribute(std::string_view qName, std::string_view prefix, std::string_view localName, std::string_view value) {
 
-    bool inEscape = localName == "escape"sv;
     if (localName == "url"sv)
         url = value;
-    // convert special srcML escaped element to characters
-    if (inEscape && localName == "char"sv /* && inUnit */) {
-        // use strtol() instead of atoi() since strtol() understands hex encoding of '0x0?'
-        [[maybe_unused]] char escapeValue = (char)strtol(value.data(), NULL, 0);
-    }
-    if(value == "line"sv) {
+    // [FIX] inEscape 제거: localName이 "escape"이면서 동시에 "char"일 수 없어 조건이 절대 true가 되지 않는 버그였음
+    // escape 처리는 qName을 기준으로 부모 태그 상태를 추적해야 하므로 현재 구조에서는 미구현 상태로 둠
+    // [FIX] if → else if 로 수정: value는 "line"이면서 동시에 "string"일 수 없으므로 else if가 의미상 올바름
+    if (value == "line"sv) {
         ++lineCommentCount;
-    }
-    if(value == "string"sv) {
+    } else if (value == "string"sv) {
         ++literalCount;
     }
 }
@@ -82,74 +78,75 @@ void srcFactsParser::handleCharacterNonEntityReferences(std::string_view charact
 
 void srcFactsParser::handleEndDocument() {}
 
+// [FIX] 모든 getter 구현에 const 추가 (헤더 선언과 일치시킴)
 // get method for URL
-std::string srcFactsParser::getURL() {
+std::string srcFactsParser::getURL() const {
 
     return url;
 }
 
 //get method for textsize
-int srcFactsParser::getTextsize() {
+int srcFactsParser::getTextsize() const {
 
     return textSize;
 }
 
 //get method for loc
-int srcFactsParser::getLOC() {
+int srcFactsParser::getLOC() const {
 
     return loc;
 }
 
 //get method for exprCount
-int srcFactsParser::getExprCount() {
+int srcFactsParser::getExprCount() const {
 
     return exprCount;
 }
 
 //get method for functionCount
-int srcFactsParser::getFunctionCount() {
+int srcFactsParser::getFunctionCount() const {
 
     return functionCount;
 }
 
 //get method for classCount
-int srcFactsParser::getClassCount() {
-    
+int srcFactsParser::getClassCount() const {
+
     return classCount;
 }
 
 //get method for unitCount
-int srcFactsParser::getUnitCount() {
+int srcFactsParser::getUnitCount() const {
 
     return unitCount;
 }
 
 //get method for declCount
-int srcFactsParser::getDeclCount() {
+int srcFactsParser::getDeclCount() const {
 
     return declCount;
 }
 
 //get method for commentCount
-int srcFactsParser::getCommentCount() {
+int srcFactsParser::getCommentCount() const {
 
     return commentCount;
 }
 
 //get method for returnCount
-int srcFactsParser::getReturnCount() {
+int srcFactsParser::getReturnCount() const {
 
     return returnCount;
 }
 
 //get method for lineCommentCount
-int srcFactsParser::getLineCommentCount() {
+int srcFactsParser::getLineCommentCount() const {
 
     return lineCommentCount;
 }
 
 //get method for literalCount
-int srcFactsParser::getLiteralCount() {
+int srcFactsParser::getLiteralCount() const {
 
     return literalCount;
 }

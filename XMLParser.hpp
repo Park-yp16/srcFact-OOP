@@ -57,7 +57,8 @@ class XMLParser {
     void startTracing();
 
     // check for file input
-    void checkFIleInput();
+    // [FIX] 오타 수정: checkFIleInput → checkFileInput
+    void checkFileInput();
 
     // parse XML declaration
     void parseXMLDeclaration();

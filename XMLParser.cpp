@@ -55,7 +55,8 @@ void XMLParser::startTracing() {
 }
 
 // check for file input
-void XMLParser::checkFIleInput() {
+// [FIX] 오타 수정: checkFIleInput → checkFileInput
+void XMLParser::checkFileInput() {
 
     int bytesRead = refillContent(content);
     if (bytesRead < 0) {
@@ -345,13 +346,14 @@ bool XMLParser::isCDATA() {
 // parse CDATA
 void XMLParser::parseCDATA() {
 
-    content.remove_prefix("<![Ccontent["sv.size());
+    // [FIX] 잘못된 문자열 "<![Ccontent[" → "<![CDATA[" 으로 수정
+    content.remove_prefix("<![CDATA["sv.size());
     std::size_t tagEndPosition = content.find("]]>"sv);
     if (tagEndPosition == content.npos) {
-        
+
         // refill content preserving unprocessed
         refillContentUnprocessed();
-        tagEndPosition = content.find("-->"sv);
+        // [FIX] 죽은 코드(dead code) 제거: CDATA 파싱 중 "-->" 를 찾는 것은 잘못됨
         tagEndPosition = content.find("]]>"sv);
         if (tagEndPosition == content.npos) {
             std::cerr << "parser error : Unterminated CDATA\n";
@@ -468,7 +470,7 @@ void XMLParser::parseStartTag() {
     [[maybe_unused]] const std::string_view prefix(qName.substr(0, colonPosition));
     const std::string_view localName(qName.substr(colonPosition ? colonPosition + 1 : 0, nameEndPosition));
     TRACE("START TAG", "qName", qName, "prefix", prefix, "localName", localName);
-    bool inEscape = localName == "escape"sv;
+    // [FIX] 사용되지 않는 inEscape 변수 제거 (escape 상태 추적은 handler 책임)
     content.remove_prefix(nameEndPosition);
     content.remove_prefix(content.find_first_not_of(WHITESPACE));
     handler.handleStartTag(qName, prefix, localName);
@@ -581,7 +583,7 @@ void XMLParser::endTracing() {
 void XMLParser::parse() {
 
     startTracing();
-    checkFIleInput();
+    checkFileInput();
 
     if (isXMLDeclaration()) {
 
